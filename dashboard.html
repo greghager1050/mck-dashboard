@@ -985,6 +985,7 @@
     <button class="tab-btn" data-tab="todo">✅ To-Do</button>
     <button class="tab-btn" data-tab="bibliothek">💬 Sätze-Bibliothek</button>
     <button class="tab-btn" data-tab="tageslog">📔 Tageslog</button>
+    <button class="tab-btn" data-tab="notizen">📝 Notizen</button>
   </nav>
 
   <!-- TAB: DASHBOARD -->
@@ -3157,6 +3158,47 @@
     </div><!-- /drehbuch -->
   </div><!-- /tab-tageslog -->
 
+  <!-- TAB: NOTIZEN -->
+  <div id="tab-notizen" class="tab-content">
+    <div class="drehbuch">
+
+      <div class="db-block">
+        <div class="db-block-head">
+          <h3>📝 Neue Notiz</h3>
+          <span class="db-time" id="notizenCount">0 Notizen</span>
+        </div>
+        <div class="db-block-body">
+          <div style="display:flex;flex-direction:column;gap:12px;">
+            <textarea id="notizenInput" placeholder="Notiz eingeben… Beobachtung, Gedanke, Gesprächsnotiz, offener Punkt."
+              style="width:100%;min-height:120px;padding:12px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:15px;font-family:inherit;resize:vertical;box-sizing:border-box;"></textarea>
+            <div style="display:flex;gap:10px;align-items:center;">
+              <button class="tlog-btn" id="notizenSave">💾 Speichern</button>
+              <button class="tlog-btn secondary" id="notizenClear">🗑 Alle löschen</button>
+              <button class="tlog-btn secondary" id="notizenExport">📋 Für McK kopieren</button>
+            </div>
+            <div id="notizenFeedback" style="font-size:13px;color:var(--accent);min-height:18px;"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="db-block">
+        <div class="db-block-head">
+          <h3>📚 Notizen – heute & früher</h3>
+          <button class="toolbtn" id="notizenFilterToday" style="font-size:12px;">Nur heute</button>
+          <button class="toolbtn" id="notizenFilterAll" style="font-size:12px;">Alle</button>
+        </div>
+        <div class="db-block-body">
+          <div id="notizenList" style="display:flex;flex-direction:column;gap:10px;">
+            <p style="color:var(--text-muted);font-style:italic;text-align:center;padding:12px 0;">
+              Noch keine Notizen. Erste Notiz eingeben und speichern.
+            </p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div><!-- /tab-notizen -->
+
   <footer class="foot">
     McK Command Center · letztes Update Strategie: 24.04.2026 · Stichtag: 03.10.2026
   </footer>
@@ -4511,11 +4553,9 @@
 
   // Filter listeners
   ['todoFilterStatus','todoFilterPriority','todoFilterSource'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.addEventListener('change', renderTodoTable);
+    document.getElementById(id)?.addEventListener('change', () => renderTodoTable());
   });
-  const searchEl = document.getElementById('todoSearchInput');
-  if (searchEl) searchEl.addEventListener('input', renderTodoTable);
+  document.getElementById('todoSearchInput')?.addEventListener('input', () => renderTodoTable());
 
   // Reset filters
   document.getElementById('todoResetFilters')?.addEventListener('click', () => {
@@ -4564,6 +4604,98 @@
   });
 
   function updateTodoStatus(id, status) { todoUpdateField(id, 'status', status); }
+
+  // ===== NOTIZEN =====
+  const NOTIZEN_KEY = 'mck_notizen';
+
+  function getNotizen() {
+    try { return JSON.parse(ls.getItem(NOTIZEN_KEY) || '[]'); } catch(e) { return []; }
+  }
+  function saveNotizen(arr) {
+    ls.setItem(NOTIZEN_KEY, JSON.stringify(arr));
+  }
+
+  function fmtNotizenDate(iso) {
+    const d = new Date(iso);
+    return d.toLocaleDateString('de-DE', { weekday: 'short', day: '2-digit', month: '2-digit', year: 'numeric' })
+      + ' · ' + d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  let notizenShowOnlyToday = false;
+
+  function renderNotizen() {
+    const all = getNotizen();
+    const todayStr = new Date().toISOString().slice(0, 10);
+    const filtered = notizenShowOnlyToday
+      ? all.filter(n => n.ts.slice(0, 10) === todayStr)
+      : all;
+
+    document.getElementById('notizenCount').textContent = all.length + ' Notiz' + (all.length !== 1 ? 'en' : '');
+
+    const list = document.getElementById('notizenList');
+    if (!filtered.length) {
+      list.innerHTML = '<p style="color:var(--text-muted);font-style:italic;text-align:center;padding:12px 0;">'
+        + (notizenShowOnlyToday ? 'Heute noch keine Notizen.' : 'Noch keine Notizen.')
+        + '</p>';
+      return;
+    }
+
+    list.innerHTML = filtered.slice().reverse().map(n => `
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px 16px;position:relative;">
+        <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;">${fmtNotizenDate(n.ts)}</div>
+        <div style="white-space:pre-wrap;font-size:14px;line-height:1.6;">${n.text.replace(/</g,'&lt;')}</div>
+        <button onclick="deleteNotiz('${n.id}')" style="position:absolute;top:10px;right:12px;background:none;border:none;cursor:pointer;font-size:16px;color:var(--text-muted);padding:0;" title="Löschen">×</button>
+      </div>
+    `).join('');
+  }
+
+  function deleteNotiz(id) {
+    if (!confirm('Notiz löschen?')) return;
+    saveNotizen(getNotizen().filter(n => n.id !== id));
+    renderNotizen();
+  }
+
+  document.getElementById('notizenSave')?.addEventListener('click', () => {
+    const input = document.getElementById('notizenInput');
+    const text = input.value.trim();
+    if (!text) return;
+    const notizen = getNotizen();
+    notizen.push({ id: 'n-' + Date.now(), ts: new Date().toISOString(), text });
+    saveNotizen(notizen);
+    input.value = '';
+    renderNotizen();
+    const fb = document.getElementById('notizenFeedback');
+    fb.textContent = '✓ Gespeichert – ' + new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+    setTimeout(() => { fb.textContent = ''; }, 3000);
+  });
+
+  document.getElementById('notizenClear')?.addEventListener('click', () => {
+    if (!confirm('Alle Notizen löschen?')) return;
+    saveNotizen([]);
+    renderNotizen();
+  });
+
+  document.getElementById('notizenExport')?.addEventListener('click', () => {
+    const todayStr = new Date().toISOString().slice(0, 10);
+    const todayNotizen = getNotizen().filter(n => n.ts.slice(0, 10) === todayStr);
+    if (!todayNotizen.length) { showToast('Heute noch keine Notizen.'); return; }
+    const text = '# Notizen – ' + new Date().toLocaleDateString('de-DE')
+      + '\n\n'
+      + todayNotizen.map(n => '**' + fmtNotizenDate(n.ts) + '**\n' + n.text).join('\n\n---\n\n');
+    copyToClipboard(text);
+    showToast('✓ Notizen kopiert – bereit für McK');
+  });
+
+  document.getElementById('notizenFilterToday')?.addEventListener('click', () => {
+    notizenShowOnlyToday = true; renderNotizen();
+  });
+  document.getElementById('notizenFilterAll')?.addEventListener('click', () => {
+    notizenShowOnlyToday = false; renderNotizen();
+  });
+
+  document.querySelector('.tab-btn[data-tab="notizen"]')?.addEventListener('click', () => renderNotizen());
+
+  if (ls.getItem('mck_active_tab') === 'notizen') renderNotizen();
 
 </script>
 </body>
