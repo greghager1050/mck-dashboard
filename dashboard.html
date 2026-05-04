@@ -1405,6 +1405,23 @@
           </div>
 
           <div class="db-section">
+            <div class="db-section-head">📧 Begrüssungsmail ans Team – 11:00 Uhr versenden</div>
+            <p style="font-size:12px;color:var(--text-muted);margin-bottom:8px;">Betreff: <strong>Hallo vom neuen Kollegen</strong> &nbsp;|&nbsp; Timing: sobald Mailzugang läuft, spätestens 11:00 Uhr</p>
+            <div class="db-quote" style="white-space:pre-line;font-family:inherit;line-height:1.7;">Liebes Team,
+
+mein Name ist Greg Hager – heute ist mein erster Tag bei card complete, und ich freue mich sehr darauf, Teil dieses Teams zu sein.
+
+Ich komme aus dem Contact Center und bringe einige Jahre Erfahrung in diesem Umfeld mit – gleichzeitig bin ich neu hier und weiß, dass es viel zu lernen gibt. Deshalb möchte ich mir in den ersten Wochen vor allem Zeit nehmen, euch und eure Arbeit wirklich kennenzulernen.
+
+In den nächsten Tagen werde ich auf jeden von euch persönlich zukommen. Bis dahin bin ich jederzeit ansprechbar.
+
+Ich freue mich auf die gemeinsame Arbeit.
+
+Herzliche Grüße,
+Greg</div>
+          </div>
+
+          <div class="db-section">
             <div class="db-section-head">Szenarien</div>
             <div class="db-szenarien">
               <div class="db-szenario best">
@@ -3841,6 +3858,24 @@
       todos_post: []
     },
     {
+      id: 'ev-mail', date: '2026-05-04', time: '11:00', title: '📧 Begrüssungsmail ans Team versenden',
+      person: 'Gesamtteam', duration: '5 Min',
+      ziel: 'Erste Kontaktaufnahme mit dem gesamten Team. Ton setzen: offen, geerdet, zugänglich.',
+      aktionen: [
+        'Betreff: Hallo vom neuen Kollegen',
+        'Text: "Liebes Team, mein Name ist Greg Hager – heute ist mein erster Tag bei card complete, und ich freue mich sehr darauf, Teil dieses Teams zu sein. Ich komme aus dem Contact Center und bringe einige Jahre Erfahrung in diesem Umfeld mit – gleichzeitig bin ich neu hier und weiß, dass es viel zu lernen gibt. Deshalb möchte ich mir in den ersten Wochen vor allem Zeit nehmen, euch und eure Arbeit wirklich kennenzulernen. In den nächsten Tagen werde ich auf jeden von euch persönlich zukommen. Bis dahin bin ich jederzeit ansprechbar. Ich freue mich auf die gemeinsame Arbeit. Herzliche Grüße, Greg"',
+        'Spätestens 11:00 Uhr absenden – nicht früher als Mailzugang läuft'
+      ],
+      saetze: [],
+      szenarien: {
+        best: { situation: 'Mailzugang läuft problemlos, Mail raus bis 11:00.', reaktion: 'Abschicken, nicht nochmal lesen.' },
+        likely: { situation: 'Mailzugang läuft, aber kleinere Zugangsprobleme.', reaktion: 'IT ansprechen, Geduld zeigen.' },
+        worst: { situation: 'Kein Mailzugang am Vormittag.', reaktion: 'Nachmittag nachholen – spätestens 14:00.' }
+      },
+      todos_pre: ['Mail-Text bereit haben (im Tab Tag 1 hinterlegt)'],
+      todos_post: ['Reaktionen beobachten – wer antwortet wie?']
+    },
+    {
       id: 'ev2', date: '2026-05-04', time: '11:00', title: 'Teamleiter-Meeting',
       person: 'Lydia Đorđević + CC2-TL', duration: '60-90 Min',
       ziel: 'Erster persönlicher Eindruck bei den Teamleitungen. Namen merken, zuhören, kein Inhalt.',
@@ -4046,14 +4081,21 @@
   };
 
   function initCalendar() {
-    if (!ls.getItem('mck-events-initialized')) {
-      ls.setItem('mck-events', JSON.stringify(INITIAL_EVENTS));
-      ls.setItem('mck-events-initialized', 'true');
-    }
+    // Always sync INITIAL_EVENTS into localStorage (merge: add missing, don't overwrite existing)
+    let stored = [];
+    try { stored = JSON.parse(ls.getItem('mck-events') || '[]'); } catch(e) { stored = []; }
+    const storedIds = stored.map(e => e.id);
+    INITIAL_EVENTS.forEach(ev => {
+      if (!storedIds.includes(ev.id)) stored.push(ev);
+    });
+    ls.setItem('mck-events', JSON.stringify(stored));
+    ls.setItem('mck-events-initialized', 'true');
     renderOpenAppointments();
     renderCalendar();
     setupCalendarEventListeners();
   }
+
+  // initCalendar is triggered via tabRenderMap() below
 
   function renderOpenAppointments() {
     const container = document.getElementById('openAppts');
@@ -4257,17 +4299,89 @@
     const allPreTodos = [...(eventOrAppt.todos_pre || []), ...savedPreTodos];
     const todoPreContainer = document.getElementById('modalTodosPre');
     todoPreContainer.innerHTML = '';
+    // Key for persisting done state of pre-meeting todos
+    const todoDoneKey = 'mck-appt-' + eventOrAppt.id + '-todos-done';
+    let doneTodos = [];
+    try { doneTodos = JSON.parse(ls.getItem(todoDoneKey) || '[]'); } catch(e) { doneTodos = []; }
+
+    function renderModalDoneSection() {
+      const countEl = document.getElementById('doneHistoryCount');
+      const contentEl = document.getElementById('doneHistoryContent');
+      if (countEl) countEl.textContent = doneTodos.length;
+      if (contentEl) {
+        if (doneTodos.length === 0) {
+          contentEl.innerHTML = '<p style="color:var(--text-muted);font-style:italic;font-size:13px;padding:4px 0;">Noch nichts erledigt.</p>';
+        } else {
+          contentEl.innerHTML = doneTodos.map((t, i) => `
+            <div style="display:flex;gap:10px;align-items:center;padding:5px 0;border-bottom:1px solid var(--border);font-size:13px;">
+              <span style="color:var(--success);">✓</span>
+              <span style="flex:1;text-decoration:line-through;color:var(--text-muted);">${t}</span>
+              <button onclick="(function(){
+                doneTodosRestore(${i});
+              })()" style="background:none;border:1px solid var(--border);border-radius:4px;padding:2px 6px;cursor:pointer;font-size:11px;color:var(--text-muted);">↩ Zurück</button>
+            </div>`).join('');
+        }
+      }
+    }
+
+    // Expose restore function to inline onclick
+    window.doneTodosRestore = function(idx) {
+      const text = doneTodos[idx];
+      doneTodos.splice(idx, 1);
+      ls.setItem(todoDoneKey, JSON.stringify(doneTodos));
+      renderPreTodo(text);
+      renderModalDoneSection();
+    };
+
+    // Click handler for accordion
+    const doneHistHeader = document.getElementById('doneHistoryHeader');
+    if (doneHistHeader) {
+      const newHdr = doneHistHeader.cloneNode(true);
+      doneHistHeader.parentNode.replaceChild(newHdr, doneHistHeader);
+      newHdr.addEventListener('click', () => {
+        const contentEl = document.getElementById('doneHistoryContent');
+        const toggleEl  = document.getElementById('doneHistoryToggle');
+        const isOpen = contentEl.style.display !== 'none';
+        contentEl.style.display = isOpen ? 'none' : 'block';
+        if (toggleEl) toggleEl.textContent = isOpen ? '▶' : '▼';
+      });
+    }
+
     function renderPreTodo(text) {
       const li = document.createElement('li');
       li.className = 'todo-item';
-      li.innerHTML = `<input type="checkbox"><span style="flex:1">${text}</span>
+      const isDone = doneTodos.includes(text);
+      li.innerHTML = `<input type="checkbox" ${isDone ? 'checked' : ''}><span style="flex:1;${isDone ? 'text-decoration:line-through;color:var(--text-muted);' : ''}">${text}</span>
         <button class="todo-global-btn">→ Global</button>`;
+      const cb = li.querySelector('input[type=checkbox]');
+      cb.addEventListener('change', () => {
+        const span = li.querySelector('span');
+        if (cb.checked) {
+          span.style.textDecoration = 'line-through';
+          span.style.color = 'var(--text-muted)';
+          if (!doneTodos.includes(text)) doneTodos.push(text);
+          ls.setItem(todoDoneKey, JSON.stringify(doneTodos));
+          // Fade out and remove from pre-list after short delay
+          li.style.opacity = '0.4';
+          setTimeout(() => { li.remove(); renderModalDoneSection(); }, 400);
+        } else {
+          span.style.textDecoration = '';
+          span.style.color = '';
+          doneTodos = doneTodos.filter(t => t !== text);
+          ls.setItem(todoDoneKey, JSON.stringify(doneTodos));
+          renderModalDoneSection();
+        }
+      });
       li.querySelector('.todo-global-btn').addEventListener('click', () => {
         pushToGlobal(text, eventOrAppt.title);
       });
       todoPreContainer.appendChild(li);
     }
-    allPreTodos.forEach(renderPreTodo);
+
+    // Only render un-done todos in the pre-list
+    allPreTodos.filter(t => !doneTodos.includes(t)).forEach(renderPreTodo);
+    // Render done section on open
+    renderModalDoneSection();
 
     // Todos post – load from localStorage, editable rows
     const todoPostKey = 'mck-appt-' + eventOrAppt.id + '-todos-post';
@@ -4693,9 +4807,22 @@
     notizenShowOnlyToday = false; renderNotizen();
   });
 
-  document.querySelector('.tab-btn[data-tab="notizen"]')?.addEventListener('click', () => renderNotizen());
+  // ===== TAB-AWARE RENDER HOOKS =====
+  function tabRenderMap(tabId) {
+    if (tabId === 'notizen')  renderNotizen();
+    if (tabId === 'todo')     renderTodoTable();
+    if (tabId === 'termine')  initCalendar();
+  }
 
-  if (ls.getItem('mck_active_tab') === 'notizen') renderNotizen();
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => tabRenderMap(btn.dataset.tab));
+  });
+
+  const _activeTab = ls.getItem('mck-active-tab') || 'dashboard';
+  tabRenderMap(_activeTab);
+
+  renderTodoTable();
+  initCalendar();
 
 </script>
 </body>
