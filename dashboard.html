@@ -3224,6 +3224,25 @@ Greg</div>
   </footer>
 </div>
 
+  <!-- Cloud Sync Setup Modal -->
+  <div id="cloudSetupModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;align-items:center;justify-content:center;">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:28px;width:420px;max-width:95vw;">
+      <h3 style="margin:0 0 16px;font-size:16px;">⚙ GitHub Gist Sync – Einrichtung</h3>
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:20px;">Einmalig einrichten. Token wird nur lokal gespeichert, nie übertragen.</p>
+      <label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px;">GitHub Personal Access Token (Gist-Scope)</label>
+      <input id="setupTokenInput" type="password" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"
+        style="width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text);font-size:13px;box-sizing:border-box;margin-bottom:14px;">
+      <label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px;">Gist ID (aus der URL nach deinem Username)</label>
+      <input id="setupGistInput" type="text" placeholder="abc123def456..."
+        style="width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text);font-size:13px;box-sizing:border-box;margin-bottom:20px;">
+      <div id="setupError" style="color:#e74c3c;font-size:13px;margin-bottom:12px;display:none;"></div>
+      <div style="display:flex;gap:10px;justify-content:flex-end;">
+        <button id="setupCancelBtn" class="tlog-btn secondary">Abbrechen</button>
+        <button id="setupSaveBtn" class="tlog-btn">✓ Speichern & Testen</button>
+      </div>
+    </div>
+  </div>
+
 <script>
   // ===== Safe localStorage wrapper (iOS Safari compatibility) =====
   // On iOS when opening local files, localStorage can throw SecurityError.
@@ -3237,6 +3256,12 @@ Greg</div>
     keys()        { try { return Object.keys(_LS); }   catch(e) { return Object.keys(_memStore); } },
     clear()       { try { _LS.clear(); }               catch(e) { Object.keys(_memStore).forEach(k => delete _memStore[k]); } }
   };
+
+  // ===== One-time key migration (mck_notizen → mck-notizen) =====
+  (function migrateKeys() {
+    const old = _LS.getItem('mck_notizen');
+    if (old && !_LS.getItem('mck-notizen')) { _LS.setItem('mck-notizen', old); }
+  })();
 
   // ===== Date helpers =====
   const START = new Date(2026, 4, 4);   // 04.05.2026
@@ -4974,23 +4999,5 @@ Greg</div>
 </script>
 
 
-  <!-- Cloud Sync Setup Modal -->
-  <div id="cloudSetupModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;align-items:center;justify-content:center;">
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:28px;width:420px;max-width:95vw;">
-      <h3 style="margin:0 0 16px;font-size:16px;">⚙ GitHub Gist Sync – Einrichtung</h3>
-      <p style="font-size:13px;color:var(--text-muted);margin-bottom:20px;">Einmalig einrichten. Token wird nur lokal gespeichert, nie übertragen.</p>
-      <label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px;">GitHub Personal Access Token (Gist-Scope)</label>
-      <input id="setupTokenInput" type="password" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"
-        style="width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text);font-size:13px;box-sizing:border-box;margin-bottom:14px;">
-      <label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px;">Gist ID (aus der URL nach deinem Username)</label>
-      <input id="setupGistInput" type="text" placeholder="abc123def456..."
-        style="width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text);font-size:13px;box-sizing:border-box;margin-bottom:20px;">
-      <div id="setupError" style="color:#e74c3c;font-size:13px;margin-bottom:12px;display:none;"></div>
-      <div style="display:flex;gap:10px;justify-content:flex-end;">
-        <button id="setupCancelBtn" class="tlog-btn secondary">Abbrechen</button>
-        <button id="setupSaveBtn" class="tlog-btn">✓ Speichern & Testen</button>
-      </div>
-    </div>
-  </div>
 </body>
 </html>
