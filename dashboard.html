@@ -2713,6 +2713,7 @@ Greg</div>
       <div class="db-header" style="margin-bottom:24px;">
         <h2>📅 Terminkalender – 2026</h2>
         <div class="db-sub">Offene Termine oben · Kalender mit Ereignissen · Meeting-Details im Popup</div>
+        <button class="toolbtn" id="addEventBtn" style="margin-top:10px;background:var(--accent);color:#fff;border-color:var(--accent);font-weight:600;">+ Termin</button>
       </div>
 
       <!-- OPEN APPOINTMENTS SECTION -->
@@ -2835,6 +2836,49 @@ Greg</div>
 
       </div>
     </div>
+
+  <!-- ADD EVENT MODAL -->
+  <div id="addEventModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;align-items:center;justify-content:center;">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:28px;width:460px;max-width:95vw;max-height:90vh;overflow-y:auto;position:relative;">
+      <button id="addEventCloseBtn" style="position:absolute;top:14px;right:16px;background:none;border:none;font-size:20px;cursor:pointer;color:var(--text-muted);">&times;</button>
+      <h3 style="margin:0 0 20px;font-size:16px;color:var(--accent);">📅 Neuer Termin</h3>
+
+      <label style="font-size:13px;font-weight:600;display:block;margin-bottom:5px;">Titel *</label>
+      <input id="newEvTitle" type="text" placeholder="z.B. 1:1 mit Lydia"
+        style="width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text);font-size:13px;box-sizing:border-box;margin-bottom:14px;">
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+        <div>
+          <label style="font-size:13px;font-weight:600;display:block;margin-bottom:5px;">Datum *</label>
+          <input id="newEvDate" type="date"
+            style="width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text);font-size:13px;box-sizing:border-box;">
+        </div>
+        <div>
+          <label style="font-size:13px;font-weight:600;display:block;margin-bottom:5px;">Uhrzeit</label>
+          <input id="newEvTime" type="time" value="09:00"
+            style="width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text);font-size:13px;box-sizing:border-box;">
+        </div>
+      </div>
+
+      <label style="font-size:13px;font-weight:600;display:block;margin-bottom:5px;">Dauer</label>
+      <input id="newEvDuration" type="text" placeholder="z.B. 1h, 30 Min, 2h"
+        style="width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text);font-size:13px;box-sizing:border-box;margin-bottom:14px;">
+
+      <label style="font-size:13px;font-weight:600;display:block;margin-bottom:5px;">Teilnehmer</label>
+      <input id="newEvPerson" type="text" placeholder="z.B. Lydia Đorđević, Natascha"
+        style="width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text);font-size:13px;box-sizing:border-box;margin-bottom:14px;">
+
+      <label style="font-size:13px;font-weight:600;display:block;margin-bottom:5px;">Ziel / Notizen</label>
+      <textarea id="newEvZiel" placeholder="Was soll erreicht werden? Kontext, Agenda…"
+        style="width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text);font-size:13px;box-sizing:border-box;min-height:80px;resize:vertical;margin-bottom:20px;"></textarea>
+
+      <div id="addEventError" style="color:#e74c3c;font-size:13px;margin-bottom:10px;display:none;">Bitte Titel und Datum ausfüllen.</div>
+      <div style="display:flex;gap:10px;justify-content:flex-end;">
+        <button id="addEventCancelBtn" class="tlog-btn secondary">Abbrechen</button>
+        <button id="addEventSaveBtn" class="tlog-btn" style="background:var(--accent);color:#fff;border-color:var(--accent);">✓ Termin speichern</button>
+      </div>
+    </div>
+  </div>
 
   </div><!-- /tab-termine -->
 
@@ -4993,8 +5037,80 @@ Greg</div>
     document.getElementById('setupSaveBtn').textContent = '✓ Speichern & Testen';
   });
 
+
+  // === PRE-POPULATED TODOS (einmalig, keine Duplikate) ===
+  (function injectDefaultTodos() {
+    const presets = [
+      {
+        id: 'todo-preset-vorfloskel-0506',
+        title: 'Mein Name ist Greg Hager, ich bin seit Montag als Leiter Consumer Service an Bord. Ich komme aus dem Contact Center-Umfeld und bringe einige Jahre Führungserfahrung in diesem Bereich mit – die Branche hier ist neu für mich, und das ist mir bewusst. Deshalb habe ich mir für die ersten Wochen ein klares Ziel gesetzt: zuhören, verstehen, Fragen stellen. Ich werde in den nächsten Tagen auf jeden von euch persönlich zukommen. Ich freue mich auf die Zusammenarbeit.',
+        source: 'McK – Briefing 06.05.',
+        created: '2026-05-05',
+        due: '2026-05-06',
+        owner: '',
+        priority: 'hoch',
+        status: 'open',
+        note: ''
+      }
+    ];
+    let todos = [];
+    try { todos = JSON.parse(ls.getItem('mck-todos') || '[]'); } catch(e) {}
+    presets.forEach(p => {
+      const idx = todos.findIndex(t => t.id === p.id);
+      if (idx === -1) todos.unshift(p);
+      else todos[idx] = Object.assign({}, todos[idx], { title: p.title, note: p.note, source: p.source });
+    });
+    ls.setItem('mck-todos', JSON.stringify(todos));
+  })();
+
   renderTodoTable();
   initCalendar();
+
+  // ===== ADD EVENT MODAL =====
+  const addEventModal = document.getElementById('addEventModal');
+
+  document.getElementById('addEventBtn').addEventListener('click', () => {
+    // Datum auf heute vorbelegen
+    document.getElementById('newEvDate').value = new Date().toISOString().slice(0,10);
+    document.getElementById('newEvTitle').value = '';
+    document.getElementById('newEvTime').value = '09:00';
+    document.getElementById('newEvDuration').value = '1h';
+    document.getElementById('newEvPerson').value = '';
+    document.getElementById('newEvZiel').value = '';
+    document.getElementById('addEventError').style.display = 'none';
+    addEventModal.style.display = 'flex';
+  });
+
+  document.getElementById('addEventCloseBtn').addEventListener('click', () => { addEventModal.style.display = 'none'; });
+  document.getElementById('addEventCancelBtn').addEventListener('click', () => { addEventModal.style.display = 'none'; });
+
+  document.getElementById('addEventSaveBtn').addEventListener('click', () => {
+    const title = document.getElementById('newEvTitle').value.trim();
+    const date  = document.getElementById('newEvDate').value.trim();
+    if (!title || !date) { document.getElementById('addEventError').style.display = 'block'; return; }
+
+    const newEv = {
+      id: 'ev-' + Date.now(),
+      date: date,
+      time: document.getElementById('newEvTime').value || '09:00',
+      title: title,
+      person: document.getElementById('newEvPerson').value.trim(),
+      duration: document.getElementById('newEvDuration').value.trim() || '1h',
+      ziel: document.getElementById('newEvZiel').value.trim(),
+      aktionen: [], saetze: [],
+      szenarien: { best: {}, likely: {}, worst: {} },
+      todos_pre: [], todos_post: []
+    };
+
+    let events = [];
+    try { events = JSON.parse(ls.getItem('mck-events') || '[]'); } catch(e) {}
+    events.push(newEv);
+    ls.setItem('mck-events', JSON.stringify(events));
+
+    addEventModal.style.display = 'none';
+    initCalendar();
+    showToast('✓ Termin gespeichert: ' + title);
+  });
 
 </script>
 
