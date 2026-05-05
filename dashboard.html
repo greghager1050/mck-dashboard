@@ -951,8 +951,11 @@
       <span class="sub">Head of Customer Support · card complete Service Bank AG</span>
     </div>
     <div class="toolbar">
-      <button class="toolbtn" id="notionSyncBtn">☁ Notion Sync</button>
-      <button class="toolbtn" id="notionImportBtn">📥 Import JSON</button>
+      <button class="toolbtn" id="cloudPushBtn" title="Daten in Gist speichern">☁ Cloud Push</button>
+      <button class="toolbtn" id="cloudPullBtn" title="Daten aus Gist laden & mergen">📥 Cloud Pull</button>
+      <button class="toolbtn" id="cloudSetupBtn" title="GitHub Gist konfigurieren">⚙ Sync Setup</button>
+      <button class="toolbtn" id="notionSyncBtn" style="display:none">☁ Notion Sync</button>
+      <button class="toolbtn" id="notionImportBtn" style="display:none">📥 Import JSON</button>
       <button class="toolbtn" id="themeBtn">🌓 Dark Mode</button>
       <button class="toolbtn" id="printBtn">🖨 Drucken</button>
       <button class="toolbtn" id="resetBtn">↻ Reset Checkboxes</button>
@@ -3807,13 +3810,8 @@ Greg</div>
       errEl.textContent = 'Keine mck-* Daten gefunden. Falsches JSON?';
       errEl.style.display = 'block'; return;
     }
-    // Clear old mck-* keys, write new ones
-    ls.keys().filter(k => k.startsWith('mck-')).forEach(k => ls.removeItem(k));
-    keys.forEach(k => {
-      const val = data[k];
-      ls.setItem(k, typeof val === 'string' ? val : JSON.stringify(val));
-    });
-    showToast('✓ ' + keys.length + ' Datensätze importiert – Seite wird neu geladen...');
+    smartMerge(data);
+    showToast('✓ Smart Merge: ' + keys.length + ' Keys akkumuliert – Seite wird neu geladen...');
     setTimeout(() => location.reload(), 1500);
   });
 
@@ -4720,7 +4718,7 @@ Greg</div>
   function updateTodoStatus(id, status) { todoUpdateField(id, 'status', status); }
 
   // ===== NOTIZEN =====
-  const NOTIZEN_KEY = 'mck_notizen';
+  const NOTIZEN_KEY = 'mck-notizen';
 
   function getNotizen() {
     try { return JSON.parse(ls.getItem(NOTIZEN_KEY) || '[]'); } catch(e) { return []; }
@@ -4821,9 +4819,178 @@ Greg</div>
   const _activeTab = ls.getItem('mck-active-tab') || 'dashboard';
   tabRenderMap(_activeTab);
 
+
+
+  // ===== GIST CLOUD SYNC =====
+  const GIST_TOKEN_KEY = 'mck-gist-token';
+  const GIST_ID_KEY    = 'mck-gist-id';
+
+  function getGistCreds() {
+    return { token: ls.getItem(GIST_TOKEN_KEY)||'', gistId: ls.getItem(GIST_ID_KEY)||'' };
+  }
+
+  function getMckData() {
+    const data = {};
+    ls.keys().filter(k => k.startsWith('mck-') && k !== GIST_TOKEN_KEY && k !== GIST_ID_KEY).forEach(k => {
+      try { data[k] = JSON.parse(ls.getItem(k)); } catch(e) { data[k] = ls.getItem(k); }
+    });
+    return data;
+  }
+
+  function smartMerge(data) {
+    const keys = Object.keys(data).filter(k => k.startsWith('mck-'));
+    keys.forEach(k => {
+      const importVal = data[k];
+      const currentRaw = ls.getItem(k);
+      if (['mck-theme','mck-active-tab','mck-events-initialized'].includes(k)) {
+        ls.setItem(k, typeof importVal==='string'?importVal:JSON.stringify(importVal)); return;
+      }
+      if (k === 'mck-todos') {
+        let cur=[]; try{cur=JSON.parse(currentRaw||'[]');}catch(e){}
+        const imp=Array.isArray(importVal)?importVal:[];
+        imp.forEach(t=>{const idx=cur.findIndex(c=>c.id===t.id);if(idx===-1)cur.push(t);else if(t.status==='done'&&cur[idx].status!=='done')cur[idx]=t;});
+        ls.setItem(k,JSON.stringify(cur)); return;
+      }
+      if (k === 'mck-notizen') {
+        let cur=[]; try{cur=JSON.parse(currentRaw||'[]');}catch(e){}
+        const imp=Array.isArray(importVal)?importVal:[];
+        const ts=new Set(cur.map(n=>n.ts));
+        imp.forEach(n=>{if(!ts.has(n.ts))cur.push(n);});
+        cur.sort((a,b)=>(a.ts||'').localeCompare(b.ts||''));
+        ls.setItem(k,JSON.stringify(cur)); return;
+      }
+      if (k.startsWith('mck-tlog-')) {
+        let cur={}; try{cur=JSON.parse(currentRaw||'{}');}catch(e){}
+        if(!currentRaw||!Object.keys(cur).length){ls.setItem(k,JSON.stringify(importVal));return;}
+        const m={...cur};
+        ['f1','f2','f3'].forEach(f=>{const iv=(importVal[f]||'').trim();const cv=(cur[f]||'').trim();if(iv&&!cv)m[f]=iv;else if(iv&&cv&&iv!==cv)m[f]=cv+'\n\n[iPad] '+iv;});
+        if((importVal.savedAt||'')>(cur.savedAt||''))m.savedAt=importVal.savedAt;
+        ls.setItem(k,JSON.stringify(m)); return;
+      }
+      if (k === 'mck-events') {
+        let cur=[]; try{cur=JSON.parse(currentRaw||'[]');}catch(e){}
+        const imp=Array.isArray(importVal)?importVal:[];
+        const ids=new Set(cur.map(e=>e.id));imp.forEach(e=>{if(!ids.has(e.id))cur.push(e);});
+        ls.setItem(k,JSON.stringify(cur)); return;
+      }
+      if (k.includes('-todos-done')) {
+        let cur=[]; try{cur=JSON.parse(currentRaw||'[]');}catch(e){}
+        const imp=Array.isArray(importVal)?importVal:[];
+        ls.setItem(k,JSON.stringify([...new Set([...cur,...imp])])); return;
+      }
+      if (k.startsWith('mck-action-')&&!k.endsWith('-date')) {
+        ls.setItem(k,(importVal==='done'||currentRaw==='done')?'done':(typeof importVal==='string'?importVal:JSON.stringify(importVal))); return;
+      }
+      ls.setItem(k,typeof importVal==='string'?importVal:JSON.stringify(importVal));
+    });
+  }
+
+  async function cloudPush() {
+    const {token, gistId} = getGistCreds();
+    if (!token||!gistId) { showToast('⚙ Bitte zuerst Sync Setup konfigurieren'); return; }
+    const btn = document.getElementById('cloudPushBtn');
+    const orig = btn.textContent; btn.textContent = '⏳ Pushing...'; btn.disabled = true;
+    try {
+      const resp = await fetch('https://api.github.com/gists/' + gistId, {
+        method: 'PATCH',
+        headers: { 'Authorization': 'token ' + token, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ files: { 'mck-data.json': { content: JSON.stringify(getMckData(), null, 2) } } })
+      });
+      if (resp.ok) { showToast('✓ Cloud Push erfolgreich – Daten gespeichert'); }
+      else { const e = await resp.json(); showToast('✗ Fehler: ' + (e.message||resp.status)); }
+    } catch(e) { showToast('✗ Netzwerkfehler: ' + e.message); }
+    btn.textContent = orig; btn.disabled = false;
+  }
+
+  async function cloudPull() {
+    const {token, gistId} = getGistCreds();
+    if (!token||!gistId) { showToast('⚙ Bitte zuerst Sync Setup konfigurieren'); return; }
+    const btn = document.getElementById('cloudPullBtn');
+    const orig = btn.textContent; btn.textContent = '⏳ Pulling...'; btn.disabled = true;
+    try {
+      const resp = await fetch('https://api.github.com/gists/' + gistId, {
+        headers: { 'Authorization': 'token ' + token }
+      });
+      if (!resp.ok) { showToast('✗ Fehler beim Laden: ' + resp.status); btn.textContent=orig; btn.disabled=false; return; }
+      const gist = await resp.json();
+      const content = gist.files['mck-data.json']?.content;
+      if (!content) { showToast('✗ Keine Daten im Gist gefunden'); btn.textContent=orig; btn.disabled=false; return; }
+      smartMerge(JSON.parse(content));
+      showToast('✓ Cloud Pull & Smart Merge – Seite wird neu geladen...');
+      setTimeout(() => location.reload(), 1500);
+    } catch(e) { showToast('✗ Netzwerkfehler: ' + e.message); }
+    btn.textContent = orig; btn.disabled = false;
+  }
+
+  // Auto-pull on load if configured
+  (async () => {
+    const {token, gistId} = getGistCreds();
+    if (token && gistId) {
+      try {
+        const resp = await fetch('https://api.github.com/gists/' + gistId, { headers: { 'Authorization': 'token ' + token } });
+        if (resp.ok) {
+          const gist = await resp.json();
+          const content = gist.files['mck-data.json']?.content;
+          if (content) { smartMerge(JSON.parse(content)); }
+        }
+      } catch(e) {}
+    }
+  })();
+
+  document.getElementById('cloudPushBtn').addEventListener('click', cloudPush);
+  document.getElementById('cloudPullBtn').addEventListener('click', cloudPull);
+
+  // Setup Modal
+  // cloudSetupModal looked up lazily
+  document.getElementById('cloudSetupBtn').addEventListener('click', () => {
+    const {token, gistId} = getGistCreds();
+    document.getElementById('setupTokenInput').value = token;
+    document.getElementById('setupGistInput').value = gistId;
+    document.getElementById('setupError').style.display = 'none';
+    document.getElementById('cloudSetupModal').style.display = 'flex';
+  });
+  document.getElementById('setupCancelBtn').addEventListener('click', () => { document.getElementById('cloudSetupModal').style.display = 'none'; });
+  document.getElementById('setupSaveBtn').addEventListener('click', async () => {
+    const token = document.getElementById('setupTokenInput').value.trim();
+    const gistId = document.getElementById('setupGistInput').value.trim();
+    const errEl = document.getElementById('setupError');
+    if (!token||!gistId) { errEl.textContent='Token und Gist-ID sind erforderlich.'; errEl.style.display='block'; return; }
+    errEl.style.display = 'none';
+    document.getElementById('setupSaveBtn').textContent = '⏳ Teste...';
+    try {
+      const resp = await fetch('https://api.github.com/gists/' + gistId, { headers: { 'Authorization': 'token ' + token } });
+      if (!resp.ok) { errEl.textContent='Verbindung fehlgeschlagen (Status '+resp.status+'). Token oder Gist-ID prüfen.'; errEl.style.display='block'; document.getElementById('setupSaveBtn').textContent='✓ Speichern & Testen'; return; }
+      ls.setItem(GIST_TOKEN_KEY, token);
+      ls.setItem(GIST_ID_KEY, gistId);
+      cloudSetupModal.style.display = 'none';
+      showToast('✓ Verbindung erfolgreich – Sync aktiv!');
+    } catch(e) { errEl.textContent='Netzwerkfehler: '+e.message; errEl.style.display='block'; }
+    document.getElementById('setupSaveBtn').textContent = '✓ Speichern & Testen';
+  });
+
   renderTodoTable();
   initCalendar();
 
 </script>
+
+
+  <!-- Cloud Sync Setup Modal -->
+  <div id="cloudSetupModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;align-items:center;justify-content:center;">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:28px;width:420px;max-width:95vw;">
+      <h3 style="margin:0 0 16px;font-size:16px;">⚙ GitHub Gist Sync – Einrichtung</h3>
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:20px;">Einmalig einrichten. Token wird nur lokal gespeichert, nie übertragen.</p>
+      <label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px;">GitHub Personal Access Token (Gist-Scope)</label>
+      <input id="setupTokenInput" type="password" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"
+        style="width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text);font-size:13px;box-sizing:border-box;margin-bottom:14px;">
+      <label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px;">Gist ID (aus der URL nach deinem Username)</label>
+      <input id="setupGistInput" type="text" placeholder="abc123def456..."
+        style="width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text);font-size:13px;box-sizing:border-box;margin-bottom:20px;">
+      <div id="setupError" style="color:#e74c3c;font-size:13px;margin-bottom:12px;display:none;"></div>
+      <div style="display:flex;gap:10px;justify-content:flex-end;">
+        <button id="setupCancelBtn" class="tlog-btn secondary">Abbrechen</button>
+        <button id="setupSaveBtn" class="tlog-btn">✓ Speichern & Testen</button>
+      </div>
+    </div>
+  </div>
 </body>
 </html>
