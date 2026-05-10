@@ -78,24 +78,112 @@
   /* Status strip */
   .status-strip {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 12px;
-    margin-bottom: 24px;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 12px;
   }
   .stat {
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 16px 18px;
+    border-radius: 8px;
+    padding: 10px 14px;
     box-shadow: var(--shadow);
     position: relative;
   }
-  .stat .label { font-size: 11px; text-transform: uppercase; letter-spacing: .8px; color: var(--text-muted); margin-bottom: 6px; }
-  .stat .value { font-size: 28px; font-weight: 700; color: var(--accent); line-height: 1.1; }
-  .stat .meta { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+  .stat .label { font-size: 10px; text-transform: uppercase; letter-spacing: .8px; color: var(--text-muted); margin-bottom: 4px; }
+  .stat .value { font-size: 22px; font-weight: 700; color: var(--accent); line-height: 1.1; }
+  .stat .meta { font-size: 11px; color: var(--text-muted); margin-top: 3px; }
   .stat.success .value { color: var(--success); }
   .stat.warning .value { color: var(--warning); }
   .stat.critical .value { color: var(--critical); }
+
+  /* KPI Strip */
+  .kpi-strip {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  /* Red Flags inline panel */
+  .rf-inline {
+    grid-column: 1 / -1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .rf-inline-head {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 8px 14px;
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--border);
+    font-size: 12px; font-weight: 600; color: var(--accent);
+  }
+  .rf-inline-hint { font-size: 10px; color: var(--text-muted); font-weight: 400; }
+  .flags-inline {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    padding: 0; list-style: none; margin: 0;
+  }
+  .flags-inline li {
+    padding: 7px 12px;
+    background: var(--surface-2);
+    border-left: 3px solid var(--success);
+    border-bottom: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+    font-size: 11px;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 8px;
+    align-items: center;
+    transition: background .15s, border-color .15s;
+  }
+  .flags-inline li:nth-child(3n) { border-right: none; }
+  .flags-inline li:nth-last-child(-n+3) { border-bottom: none; }
+  .flags-inline li.rf-aktiv    { border-left-color: var(--warning); background: rgba(184,134,11,.07); }
+  .flags-inline li.rf-kritisch { border-left-color: var(--critical); background: rgba(139,38,53,.07); }
+  .kpi-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    box-shadow: var(--shadow);
+    position: relative;
+    cursor: default;
+  }
+  .kpi-box .kpi-label {
+    font-size: 10px; text-transform: uppercase; letter-spacing: .7px;
+    color: var(--text-muted); margin-bottom: 5px;
+  }
+  .kpi-box .kpi-value {
+    font-size: 18px; font-weight: 700; color: var(--accent); line-height: 1.1;
+  }
+  .kpi-box .kpi-meta {
+    font-size: 10px; color: var(--text-muted); margin-top: 3px;
+  }
+  .kpi-box .kpi-edit {
+    position: absolute; top: 8px; right: 8px;
+    font-size: 11px; color: var(--text-muted); cursor: pointer; opacity: .5;
+  }
+  .kpi-box .kpi-edit:hover { opacity: 1; color: var(--accent); }
+  .kpi-box.kpi-warn .kpi-value { color: var(--warning); }
+  .kpi-box.kpi-ok .kpi-value { color: var(--success); }
+  .kpi-box.kpi-crit .kpi-value { color: var(--critical); }
+  .kpi-progress {
+    height: 4px; background: var(--border); border-radius: 2px;
+    margin-top: 6px; overflow: hidden;
+  }
+  .kpi-progress-bar {
+    height: 100%; background: var(--accent); border-radius: 2px;
+    transition: width .4s;
+  }
+  .kpi-btn {
+    background: none; border: 1px solid var(--border); border-radius: 4px;
+    color: var(--text-muted); font-size: 10px; padding: 2px 6px;
+    cursor: pointer; margin-top: 4px; font-family: inherit;
+  }
+  .kpi-btn:hover { border-color: var(--accent); color: var(--accent); }
 
   /* Drehbuch (Tag 1, Woche 1) */
   .drehbuch { max-width: 1100px; margin: 0 auto; }
@@ -698,16 +786,25 @@
     margin-bottom: 6px;
     font-size: 12px;
     display: grid;
-    grid-template-columns: auto 1fr auto;
+    grid-template-columns: auto 1fr;
     gap: 10px;
     align-items: center;
+    transition: background .15s, border-color .15s;
   }
+  .flags li.rf-aktiv  { border-left-color: var(--warning); background: rgba(184,134,11,.07); }
+  .flags li.rf-kritisch { border-left-color: var(--critical); background: rgba(139,38,53,.08); }
   .flags li.triggered { border-left-color: var(--critical); background: rgba(139,38,53,.08); }
-  .flags .badge {
-    font-size: 10px; padding: 2px 6px; border-radius: 4px;
-    background: var(--success); color: #fff; font-weight: 600;
-    text-transform: uppercase; letter-spacing: .5px;
+  .flags .badge, .flags .rf-badge {
+    font-size: 10px; padding: 2px 7px; border-radius: 4px;
+    color: #fff; font-weight: 600; text-transform: uppercase;
+    letter-spacing: .5px; cursor: pointer; user-select: none;
+    white-space: nowrap;
+    background: var(--success);
+    transition: background .15s;
   }
+  .flags .rf-badge[data-state="aktiv"]    { background: var(--warning); }
+  .flags .rf-badge[data-state="kritisch"] { background: var(--critical); }
+  .flags .rf-badge[data-state="ok"]       { background: var(--success); }
   .flags li.triggered .badge { background: var(--critical); }
 
   /* Doc links */
@@ -829,10 +926,18 @@
 
   /* Responsive */
   @media (max-width: 900px) {
-    .status-strip { grid-template-columns: repeat(2, 1fr); }
+    .status-strip { grid-template-columns: repeat(3, 1fr); }
+    .kpi-strip { grid-template-columns: repeat(2, 1fr); }
+    .flags-inline { grid-template-columns: 1fr 1fr; }
+    .flags-inline li:nth-child(3n) { border-right: 1px solid var(--border); }
+    .flags-inline li:nth-child(2n) { border-right: none; }
     .col-8, .col-6, .col-4 { grid-column: span 12; }
     .pillars { grid-template-columns: repeat(2, 1fr); }
     .quadrants, .stakeholders, .doc-grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 600px) {
+    .status-strip { grid-template-columns: repeat(2, 1fr); }
+    .kpi-strip { grid-template-columns: 1fr 1fr; }
   }
 
   /* ===== CALENDAR STYLES ===== */
@@ -922,6 +1027,29 @@
   .todo-table td { padding: 8px 10px; border-bottom: 1px solid var(--border);
     vertical-align: top; }
   .todo-table tr:hover td { background: var(--surface-2); }
+  .td-inline {
+    width: 100%; box-sizing: border-box;
+    background: transparent; border: 1px solid transparent;
+    border-radius: 4px; padding: 3px 5px;
+    color: var(--text-muted); font-size: 12px; font-family: inherit;
+    transition: border-color .15s, background .15s;
+  }
+  .td-inline:hover, .td-inline:focus {
+    border-color: var(--border-strong); background: var(--surface-2);
+    color: var(--text); outline: none;
+  }
+  .td-select {
+    width: 100%; background: transparent; border: 1px solid transparent;
+    border-radius: 4px; padding: 3px 4px;
+    font-size: 12px; font-family: inherit; cursor: pointer;
+    transition: border-color .15s, background .15s;
+  }
+  .td-select:hover, .td-select:focus {
+    border-color: var(--border-strong); background: var(--surface-2); outline: none;
+  }
+  .td-date { color: var(--text-muted); font-size: 12px; }
+  .td-prio { font-size: 13px; text-align: center; }
+  .td-status { font-size: 12px; }
   .priority-hoch { background: #8b2635; color: #fff; font-size: 11px; padding: 2px 6px;
     border-radius: 3px; }
   .priority-mittel { background: #b8860b; color: #fff; font-size: 11px; padding: 2px 6px;
@@ -989,6 +1117,7 @@
     <button class="tab-btn" data-tab="bibliothek">💬 Sätze-Bibliothek</button>
     <button class="tab-btn" data-tab="tageslog">📔 Tageslog</button>
     <button class="tab-btn" data-tab="notizen">📝 Notizen</button>
+    <button class="tab-btn" data-tab="settings">⚙ Settings</button>
   </nav>
 
   <!-- TAB: DASHBOARD -->
@@ -1001,11 +1130,6 @@
       <div class="value" id="todayDate">–</div>
       <div class="meta" id="todayWeekday">–</div>
     </div>
-    <div class="stat" id="stat-start">
-      <div class="label">Bis Rollenstart</div>
-      <div class="value" id="daysStart">–</div>
-      <div class="meta">04.05.2026</div>
-    </div>
     <div class="stat" id="stat-day">
       <div class="label">Arbeitstag im Job</div>
       <div class="value" id="workingDay">–</div>
@@ -1016,6 +1140,119 @@
       <div class="value" id="daysGo">–</div>
       <div class="meta">~03.10.2026 (Vertrag)</div>
     </div>
+  </div>
+
+  <!-- KPI STRIP -->
+  <div class="kpi-strip">
+
+    <!-- KPI 1: Probezeit % -->
+    <div class="kpi-box" id="kpi-probezeit">
+      <div class="kpi-label">Probezeit</div>
+      <div class="kpi-value" id="kpiProbePct">–</div>
+      <div class="kpi-meta" id="kpiProbeMeta">von 152 Tagen</div>
+      <div class="kpi-progress"><div class="kpi-progress-bar" id="kpiProbeBar" style="width:0%"></div></div>
+    </div>
+
+    <!-- KPI 2: Quick Win Pipeline -->
+    <div class="kpi-box" id="kpi-qw">
+      <div class="kpi-label">Quick Wins</div>
+      <div class="kpi-value" id="kpiQwVal">–</div>
+      <div class="kpi-meta" id="kpiQwMeta">live · laufend · offen</div>
+      <span class="kpi-edit" onclick="editQW()" title="Bearbeiten">✏</span>
+    </div>
+
+    <!-- KPI 3: Nächste Milestone -->
+    <div class="kpi-box" id="kpi-milestone">
+      <div class="kpi-label">Nächste Milestone</div>
+      <div class="kpi-value" id="kpiMsVal">–</div>
+      <div class="kpi-meta" id="kpiMsMeta">–</div>
+      <span class="kpi-edit" onclick="editMilestone()" title="Bearbeiten">✏</span>
+    </div>
+
+    <!-- KPI 4: Team-Stimmung -->
+    <div class="kpi-box" id="kpi-mood">
+      <div class="kpi-label">Team-Stimmung</div>
+      <div class="kpi-value" id="kpiMoodVal">–</div>
+      <div class="kpi-meta" id="kpiMoodMeta">1–10 · nicht gesetzt</div>
+      <span class="kpi-edit" onclick="editMood()" title="Bearbeiten">✏</span>
+    </div>
+
+    <!-- RED FLAGS – inline, full width -->
+    <div class="rf-inline" id="kpi-flags">
+      <div class="rf-inline-head">
+        <span>🚨 Red-Flag-Frühwarnsystem</span>
+        <span class="rf-inline-hint">Badge klicken → OK · Aktiv · Kritisch</span>
+      </div>
+      <ul class="flags flags-inline" id="rfList">
+        <li data-rfid="rf0"
+            data-label="Silodenken / Governance-Vakuum"
+            data-desc="TLs entscheiden Prozesse eigenständig. RACI fehlt. Eskaliert wenn nicht bis Tag 30 adressiert.">
+          <span class="rf-badge" data-state="kritisch">KRITISCH</span>
+          <span>Silodenken / Governance-Vakuum – TLs entscheiden Prozesse eigenständig</span>
+        </li>
+        <li data-rfid="rf1"
+            data-label="COO-Beziehung nicht aufgebaut"
+            data-desc="COO noch unbekannt. Berichtslinie wechselt Juni. Erstkontakt vor 01.06. notwendig.">
+          <span class="rf-badge" data-state="aktiv">AKTIV</span>
+          <span>COO-Beziehung nicht aufgebaut – Berichtslinie wechselt Juni, Erstkontakt fehlt</span>
+        </li>
+        <li data-rfid="rf2"
+            data-label="Scope nicht schriftlich fixiert"
+            data-desc="Verantwortungsbereich mündlich, nicht dokumentiert. Deadline: 17.05. (KW2).">
+          <span class="rf-badge" data-state="aktiv">AKTIV</span>
+          <span>Scope nicht schriftlich fixiert – Deadline 17.05.</span>
+        </li>
+        <li data-rfid="rf3"
+            data-label="KPI-Verschlechterung ohne Erklärung"
+            data-desc="Zwei Monate KPI-Rückgang ohne kommunizierten Grund ist ein Eskalationssignal.">
+          <span class="rf-badge" data-state="ok">OK</span>
+          <span>KPI-Verschlechterung 2 Monate in Folge ohne Erklärung</span>
+        </li>
+        <li data-rfid="rf4"
+            data-label="Petra sagt Jour fixes ab"
+            data-desc="Mehrfach kurzfristige Absagen = Entfremdungssignal vor Go/No-Go.">
+          <span class="rf-badge" data-state="ok">OK</span>
+          <span>Petra sagt geplante Jour fixes mehrfach kurzfristig ab</span>
+        </li>
+        <li data-rfid="rf5"
+            data-label="COO spielt Petra gegen Greg aus"
+            data-desc="Politisches Manöver – direkte Berichtslinie wird unterwandert.">
+          <span class="rf-badge" data-state="ok">OK</span>
+          <span>COO signalisiert Distanz oder spielt Petra gegen Greg aus</span>
+        </li>
+        <li data-rfid="rf6"
+            data-label="Fluktuation steigt signifikant"
+            data-desc="Mehr als 20% Q/Q – Indikator für Kulturproblem oder Führungsdefizit.">
+          <span class="rf-badge" data-state="ok">OK</span>
+          <span>Fluktuation steigt signifikant (&gt;20% Q/Q)</span>
+        </li>
+        <li data-rfid="rf7"
+            data-label="Team-Feedback umgeht Greg"
+            data-desc="Kritisches Feedback erreicht Vorstand direkt – Autoritätsverlust.">
+          <span class="rf-badge" data-state="ok">OK</span>
+          <span>Kritisches Team-Feedback erreicht Vorstand direkt (an Greg vorbei)</span>
+        </li>
+        <li data-rfid="rf8"
+            data-label="Lydia distanziert sich"
+            data-desc="Erkennbare Distanzierung – war kritischstes Risiko, jetzt GRÜN nach Woche 1.">
+          <span class="rf-badge" data-state="ok">OK</span>
+          <span>Lydia distanziert sich erkennbar (Stand Woche 1: GRÜN)</span>
+        </li>
+        <li data-rfid="rf9"
+            data-label="Weiterer Scope-Abzug"
+            data-desc="Nächste Organigramm-Runde zieht weiteren Verantwortungsbereich ab.">
+          <span class="rf-badge" data-state="ok">OK</span>
+          <span>Weiterer Scope-Abzug durch nächste Organigramm-Runde</span>
+        </li>
+        <li data-rfid="rf10"
+            data-label="Projekt-Deadlines gerissen"
+            data-desc="Lieferverzug gegenüber Vorstand/COO gefährdet Go/No-Go.">
+          <span class="rf-badge" data-state="ok">OK</span>
+          <span>Projekt-Deadlines gegenüber Vorstand/COO werden gerissen</span>
+        </li>
+      </ul>
+    </div>
+
   </div>
 
   <!-- DAILY CHECK -->
@@ -1035,8 +1272,8 @@
   <div class="modules">
 
     <!-- MODULE 1 - TIMELINE -->
-    <div class="module col-12">
-      <h2><span><span class="num">1</span>Timeline 04.05. → 03.10.2026</span><span class="chev">▼</span></h2>
+    <div class="module col-12" style="margin-bottom:12px;">
+      <h2 style="padding:10px 16px;font-size:13px;"><span><span class="num">1</span>Timeline 04.05. → 03.10.2026</span><span class="chev">▼</span></h2>
       <div class="body">
         <div class="timeline-wrap">
           <div class="timeline" id="timeline">
@@ -1205,55 +1442,6 @@
             <span class="relation neutral">Neutral</span>
           </div>
         </div>
-      </div>
-    </div>
-
-    <!-- MODULE 6 - RED FLAGS -->
-    <div class="module col-6">
-      <h2><span><span class="num">6</span>Red-Flag-Frühwarnsystem</span><span class="chev">▼</span></h2>
-      <div class="body">
-        <ul class="flags">
-          <li>
-            <span class="badge">OK</span>
-            <span>KPI-Verschlechterung 2 Monate in Folge ohne Erklärung</span>
-            <span></span>
-          </li>
-          <li>
-            <span class="badge">OK</span>
-            <span>Petra sagt geplante Jour fixes mehrfach kurzfristig ab</span>
-            <span></span>
-          </li>
-          <li>
-            <span class="badge">OK</span>
-            <span>COO signalisiert Distanz oder spielt Petra gegen Greg aus</span>
-            <span></span>
-          </li>
-          <li>
-            <span class="badge">OK</span>
-            <span>Fluktuation steigt signifikant (&gt;20% Q/Q)</span>
-            <span></span>
-          </li>
-          <li>
-            <span class="badge">OK</span>
-            <span>Kritisches Team-Feedback erreicht Vorstand direkt (an Greg vorbei)</span>
-            <span></span>
-          </li>
-          <li>
-            <span class="badge">OK</span>
-            <span>Lydia distanziert sich erkennbar</span>
-            <span></span>
-          </li>
-          <li>
-            <span class="badge">OK</span>
-            <span>Weiterer Scope-Abzug durch nächste Organigramm-Runde</span>
-            <span></span>
-          </li>
-          <li>
-            <span class="badge">OK</span>
-            <span>Projekt-Deadlines gegenüber Vorstand/COO werden gerissen</span>
-            <span></span>
-          </li>
-        </ul>
       </div>
     </div>
 
@@ -2779,6 +2967,7 @@ Greg</div>
     <div class="modal-overlay" id="meetingModal">
       <div class="modal-box">
         <button class="modal-close" id="modalClose">&times;</button>
+        <button id="modalDeleteBtn" style="position:absolute;top:14px;right:48px;background:#e74c3c;color:#fff;border:none;border-radius:6px;padding:5px 12px;font-size:12px;cursor:pointer;font-weight:600;">🗑 Löschen</button>
 
         <div class="modal-header">
           <h2 id="modalTitle" style="margin:0;font-size:18px;color:var(--accent);"></h2>
@@ -2884,55 +3073,60 @@ Greg</div>
 
   <!-- TAB: TO-DO -->
   <div id="tab-todo" class="tab-content">
-    <div class="drehbuch">
+    <div class="drehbuch" style="max-width:100%;">
       <div class="db-header">
-        <h2>✅ Globale To-Do-Liste</h2>
-        <div class="db-sub">Alle offenen Punkte aus allen Meetings – sortier- und filterbar</div>
+        <h2>✅ To-Do-Liste</h2>
+        <div class="db-sub">ABC-Prioritäten · Thema · Projekt · Quelle · Arbeitstage bis Fälligkeit</div>
       </div>
 
       <div class="todo-filter-bar">
         <button class="toolbtn" id="todoAddNewBtn">+ Neues To-Do</button>
         <select id="todoFilterStatus">
           <option value="">Status: alle</option>
-          <option value="open">Offen</option>
-          <option value="progress">In Arbeit</option>
-          <option value="done">Erledigt</option>
+          <option value="open">○ Offen</option>
+          <option value="progress">◑ In Arbeit</option>
+          <option value="hold">⏸ Warten</option>
         </select>
         <select id="todoFilterPriority">
           <option value="">Priorität: alle</option>
-          <option value="hoch">🔴 Hoch</option>
-          <option value="mittel">🟡 Mittel</option>
-          <option value="tief">🟢 Tief</option>
+          <option value="A">🔴 A</option>
+          <option value="B">🟡 B</option>
+          <option value="C">🟢 C</option>
         </select>
         <select id="todoFilterSource">
           <option value="">Quelle: alle</option>
         </select>
-        <input type="text" id="todoSearchInput" placeholder="Freitext-Suche..." style="padding:6px 10px;border:1px solid var(--border-strong);border-radius:6px;background:var(--surface);color:var(--text);font-size:13px;font-family:inherit;flex:1;max-width:250px;">
-        <button class="toolbtn" id="todoResetFilters">Alle zurücksetzen</button>
+        <input type="text" id="todoSearchInput" placeholder="Freitext-Suche..." style="padding:6px 10px;border:1px solid var(--border-strong);border-radius:6px;background:var(--surface);color:var(--text);font-size:13px;font-family:inherit;flex:1;max-width:220px;">
+        <button class="toolbtn" id="todoResetFilters">↺ Reset</button>
       </div>
 
-      <table class="todo-table">
-        <thead>
-          <tr>
-            <th style="width:40px;">#</th>
-            <th style="cursor:pointer;" data-sort="title">Titel</th>
-            <th style="cursor:pointer;" data-sort="source">Quelle (Meeting)</th>
-            <th style="cursor:pointer;" data-sort="created">Erstellt</th>
-            <th style="cursor:pointer;" data-sort="due">Fällig</th>
-            <th>Weitergeleitet an</th>
-            <th style="cursor:pointer;" data-sort="priority">Priorität</th>
-            <th style="cursor:pointer;" data-sort="status">Status</th>
-            <th style="width:80px;">Aktionen</th>
-          </tr>
-        </thead>
-        <tbody id="todoTableBody">
-          <tr><td colspan="9" style="text-align:center;color:var(--text-muted);padding:20px;">Noch keine To-Dos. Klick „+ Neues To-Do" um einen hinzuzufügen.</td></tr>
-        </tbody>
-      </table>
+      <div style="overflow-x:auto;">
+        <table class="todo-table" id="todoMainTable" style="min-width:900px;table-layout:fixed;width:100%;">
+          <thead>
+            <tr>
+              <th style="width:36px;text-align:center;">#</th>
+              <th style="width:48px;text-align:center;">##</th>
+              <th style="min-width:180px;">Titel</th>
+              <th style="width:100px;">Thema</th>
+              <th style="width:100px;">Projekt</th>
+              <th style="width:120px;">Quelle</th>
+              <th style="width:44px;text-align:center;">P</th>
+              <th style="width:96px;">Fällig</th>
+              <th style="width:56px;text-align:center;">AT</th>
+              <th style="width:96px;">Status</th>
+              <th style="min-width:300px;">Notizen</th>
+              <th style="width:36px;text-align:center;">✎</th>
+            </tr>
+          </thead>
+          <tbody id="todoTableBody">
+            <tr><td colspan="12" style="text-align:center;color:var(--text-muted);padding:20px;">Noch keine To-Dos. Klick „+ Neues To-Do".</td></tr>
+          </tbody>
+        </table>
+      </div>
 
       <div class="done-history-accordion" style="margin-top:20px;">
         <div class="done-history-header" id="todoHistoryHeader">
-          <span>✓ Erledigt (<span id="todoHistoryCount">0</span> Punkte)</span>
+          <span>✓ Erledigt (<span id="todoHistoryCount">0</span>)</span>
           <span id="todoHistoryToggle">▶</span>
         </div>
         <div id="todoHistoryContent" style="display:none;margin-top:10px;">
@@ -2942,6 +3136,66 @@ Greg</div>
 
     </div><!-- /drehbuch -->
   </div><!-- /tab-todo -->
+
+  <!-- TODO MODAL -->
+  <div id="todoModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:9999;align-items:center;justify-content:center;">
+    <div style="background:var(--surface-2);border:1px solid var(--border-strong);border-radius:12px;padding:28px 32px;width:min(640px,95vw);max-height:90vh;overflow-y:auto;position:relative;">
+      <button id="todoModalClose" style="position:absolute;top:14px;right:16px;background:none;border:none;font-size:20px;cursor:pointer;color:var(--text-muted);">✕</button>
+      <h3 id="todoModalHeading" style="margin:0 0 20px;font-size:17px;">Neues To-Do</h3>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+        <div style="grid-column:1/-1;">
+          <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:4px;">Titel *</label>
+          <input id="tmTitle" type="text" placeholder="Titel des To-Dos..." style="width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid var(--border-strong);border-radius:6px;background:var(--surface);color:var(--text);font-size:14px;font-family:inherit;">
+        </div>
+        <div>
+          <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:4px;">Thema</label>
+          <input id="tmSubject" type="text" list="dl-thema" placeholder="z.B. ISAAC, Silodenken..." style="width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid var(--border-strong);border-radius:6px;background:var(--surface);color:var(--text);font-size:14px;font-family:inherit;">
+        </div>
+        <div>
+          <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:4px;">Projekt</label>
+          <input id="tmProject" type="text" list="dl-projekt" placeholder="z.B. 30-Tage-Plan..." style="width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid var(--border-strong);border-radius:6px;background:var(--surface);color:var(--text);font-size:14px;font-family:inherit;">
+        </div>
+        <div>
+          <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:4px;">Quelle</label>
+          <input id="tmSource" type="text" list="dl-quelle" placeholder="Meeting, Person, Initiative..." style="width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid var(--border-strong);border-radius:6px;background:var(--surface);color:var(--text);font-size:14px;font-family:inherit;">
+        </div>
+        <div>
+          <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:4px;">## Sub-Item (z.B. 3.1 oder 3.1.1)</label>
+          <input id="tmSub" type="text" placeholder="leer = eigenständiges To-Do" style="width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid var(--border-strong);border-radius:6px;background:var(--surface);color:var(--text);font-size:14px;font-family:inherit;">
+        </div>
+        <div>
+          <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:4px;">Priorität</label>
+          <select id="tmPriority" style="width:100%;padding:8px 10px;border:1px solid var(--border-strong);border-radius:6px;background:var(--surface);color:var(--text);font-size:14px;font-family:inherit;">
+            <option value="A">🔴 A – Kritisch / heute</option>
+            <option value="B" selected>🟡 B – Wichtig / diese Woche</option>
+            <option value="C">🟢 C – Kann warten</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:4px;">Fällig am</label>
+          <input id="tmDue" type="date" style="width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid var(--border-strong);border-radius:6px;background:var(--surface);color:var(--text);font-size:14px;font-family:inherit;">
+        </div>
+        <div>
+          <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:4px;">Status</label>
+          <select id="tmStatus" style="width:100%;padding:8px 10px;border:1px solid var(--border-strong);border-radius:6px;background:var(--surface);color:var(--text);font-size:14px;font-family:inherit;">
+            <option value="open">○ Offen</option>
+            <option value="progress">◑ In Arbeit</option>
+            <option value="hold">⏸ Warten</option>
+            <option value="done">✓ Erledigt</option>
+          </select>
+        </div>
+        <div style="grid-column:1/-1;">
+          <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:4px;">Notizen</label>
+          <textarea id="tmNotes" rows="3" placeholder="Kontext, nächste Schritte, Links..." style="width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid var(--border-strong);border-radius:6px;background:var(--surface);color:var(--text);font-size:14px;font-family:inherit;resize:vertical;"></textarea>
+        </div>
+      </div>
+      <div id="todoModalError" style="color:#e74c3c;font-size:13px;margin-top:10px;display:none;">Bitte Titel ausfüllen.</div>
+      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:18px;">
+        <button id="todoModalCancel" class="tlog-btn secondary">Abbrechen</button>
+        <button id="todoModalSave" class="tlog-btn" style="background:var(--accent);color:#fff;border-color:var(--accent);">✓ Speichern</button>
+      </div>
+    </div>
+  </div>
 
   <!-- TAB: SÄTZE-BIBLIOTHEK -->
   <div id="tab-bibliothek" class="tab-content">
@@ -3263,6 +3517,55 @@ Greg</div>
     </div>
   </div><!-- /tab-notizen -->
 
+  <!-- TAB: SETTINGS -->
+  <div id="tab-settings" class="tab-content">
+    <div class="drehbuch">
+      <div class="db-header">
+        <h2>⚙ Settings</h2>
+        <div class="db-sub">Dropdown-Werte für To-Do-Felder · einen Eintrag pro Zeile</div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:28px;margin-top:24px;">
+
+        <!-- THEMA -->
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;">
+          <h3 style="margin:0 0 6px;font-size:15px;color:var(--accent);">Thema</h3>
+          <p style="margin:0 0 12px;font-size:12px;color:var(--text-muted);">Erscheint als Dropdown im To-Do (Freitext bleibt trotzdem möglich)</p>
+          <textarea id="settingsThema" rows="8" placeholder="ISAAC&#10;Silodenken&#10;KYC-Nachfolge&#10;Nachtschicht-Automation&#10;..." style="width:100%;box-sizing:border-box;padding:10px;border:1px solid var(--border-strong);border-radius:6px;background:var(--surface-2);color:var(--text);font-size:13px;font-family:inherit;resize:vertical;line-height:1.7;"></textarea>
+          <div style="margin-top:8px;font-size:11px;color:var(--text-muted);"><span id="settingsThemaCount">0</span> Einträge</div>
+        </div>
+
+        <!-- PROJEKT -->
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;">
+          <h3 style="margin:0 0 6px;font-size:15px;color:var(--accent);">Projekt</h3>
+          <p style="margin:0 0 12px;font-size:12px;color:var(--text-muted);">Erscheint als Dropdown im To-Do (Freitext bleibt trotzdem möglich)</p>
+          <textarea id="settingsProjekt" rows="8" placeholder="30-Tage-Plan&#10;100-Tage-Plan&#10;ISAAC&#10;Reporting-Modernisierung&#10;..." style="width:100%;box-sizing:border-box;padding:10px;border:1px solid var(--border-strong);border-radius:6px;background:var(--surface-2);color:var(--text);font-size:13px;font-family:inherit;resize:vertical;line-height:1.7;"></textarea>
+          <div style="margin-top:8px;font-size:11px;color:var(--text-muted);"><span id="settingsProjektCount">0</span> Einträge</div>
+        </div>
+
+        <!-- QUELLE -->
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;">
+          <h3 style="margin:0 0 6px;font-size:15px;color:var(--accent);">Quelle</h3>
+          <p style="margin:0 0 12px;font-size:12px;color:var(--text-muted);">Erscheint als Dropdown im To-Do (Freitext bleibt trotzdem möglich)</p>
+          <textarea id="settingsQuelle" rows="8" placeholder="McK – Briefing&#10;DNA-Meeting&#10;TL-Runde&#10;1:1 Lydia&#10;Natascha&#10;..." style="width:100%;box-sizing:border-box;padding:10px;border:1px solid var(--border-strong);border-radius:6px;background:var(--surface-2);color:var(--text);font-size:13px;font-family:inherit;resize:vertical;line-height:1.7;"></textarea>
+          <div style="margin-top:8px;font-size:11px;color:var(--text-muted);"><span id="settingsQuelleCount">0</span> Einträge</div>
+        </div>
+
+      </div>
+
+      <div style="margin-top:20px;display:flex;gap:12px;align-items:center;">
+        <button class="toolbtn" id="settingsSaveBtn" style="background:var(--accent);color:#fff;border-color:var(--accent);">✓ Speichern</button>
+        <span id="settingsSaveFeedback" style="font-size:13px;color:var(--success);display:none;">✓ Gespeichert</span>
+      </div>
+
+    </div><!-- /drehbuch -->
+  </div><!-- /tab-settings -->
+
+  <!-- DATALISTS for Todo Modal -->
+  <datalist id="dl-thema"></datalist>
+  <datalist id="dl-projekt"></datalist>
+  <datalist id="dl-quelle"></datalist>
+
   <footer class="foot">
     McK Command Center · letztes Update Strategie: 24.04.2026 · Stichtag: 03.10.2026
   </footer>
@@ -3334,24 +3637,193 @@ Greg</div>
 
   const dStart = diffDays(t, START);
   const dGo = diffDays(t, ASSESS);
-  const startStat = document.getElementById('stat-start');
-  const dayStat = document.getElementById('stat-day');
 
-  if (dStart > 0) {
-    document.getElementById('daysStart').textContent = dStart + ' T';
-    startStat.querySelector('.meta').textContent = '04.05.2026 · ' + fmtWeekday(START);
-    document.getElementById('workingDay').textContent = '–';
-    document.getElementById('workingDayMeta').textContent = 'Job startet erst';
-  } else {
-    document.getElementById('daysStart').textContent = '✓';
-    startStat.classList.add('success');
-    startStat.querySelector('.meta').textContent = 'Job läuft';
-    const wd = Math.abs(dStart) + 1;
-    const total = diffDays(START, ASSESS) + 1;
-    document.getElementById('workingDay').textContent = wd;
-    document.getElementById('workingDayMeta').textContent = 'von ' + total + ' bis Beurteilungsgespräch';
-  }
+  // Arbeitstag
+  const wd = Math.max(0, Math.abs(dStart) + 1);
+  const total = diffDays(START, ASSESS) + 1;
+  document.getElementById('workingDay').textContent = dStart <= 0 ? wd : '–';
+  document.getElementById('workingDayMeta').textContent = dStart <= 0
+    ? 'von ' + total + ' bis Beurteilungsgespräch'
+    : 'Job startet ' + fmtDate(START);
   document.getElementById('daysGo').textContent = dGo + ' T';
+
+  // ===== KPI Strip =====
+
+  // KPI 1: Probezeit %
+  (function() {
+    const elapsed = Math.max(0, -dStart); // days since start
+    const pct = Math.min(100, Math.round(elapsed / total * 100));
+    const box = document.getElementById('kpi-probezeit');
+    document.getElementById('kpiProbePct').textContent = pct + '%';
+    document.getElementById('kpiProbeMeta').textContent = elapsed + ' von ' + total + ' Tagen';
+    document.getElementById('kpiProbeBar').style.width = pct + '%';
+    if (pct >= 75) box.classList.add('kpi-crit');
+    else if (pct >= 50) box.classList.add('kpi-warn');
+    else box.classList.add('kpi-ok');
+  })();
+
+  // KPI 2: Quick Win Pipeline
+  function renderQW() {
+    const qw = JSON.parse(ls.getItem('kpi_qw') || '{"live":0,"running":1,"open":2}');
+    if (!ls.getItem('kpi_qw')) ls.setItem('kpi_qw', '{"live":0,"running":1,"open":2}');
+    document.getElementById('kpiQwVal').textContent = qw.live + ' · ' + qw.running + ' · ' + qw.open;
+    document.getElementById('kpiQwMeta').textContent = 'live · laufend · offen';
+    const box = document.getElementById('kpi-qw');
+    box.className = 'kpi-box ' + (qw.live > 0 ? 'kpi-ok' : qw.running > 0 ? 'kpi-warn' : '');
+  }
+  window.editQW = function() {
+    const qw = JSON.parse(ls.getItem('kpi_qw') || '{"live":0,"running":1,"open":2}');
+    const live = prompt('Quick Wins LIVE:', qw.live);
+    if (live === null) return;
+    const running = prompt('Quick Wins LAUFEND:', qw.running);
+    if (running === null) return;
+    const open = prompt('Quick Wins OFFEN:', qw.open);
+    if (open === null) return;
+    ls.setItem('kpi_qw', JSON.stringify({live: parseInt(live)||0, running: parseInt(running)||0, open: parseInt(open)||0}));
+    renderQW();
+  };
+  renderQW();
+
+  // KPI 3: Nächste Milestone
+  function renderMilestone() {
+    if (!ls.getItem('kpi_milestone')) ls.setItem('kpi_milestone', '{"label":"DNA-Meeting","date":"2026-05-11"}');
+    const ms = JSON.parse(ls.getItem('kpi_milestone') || '{"label":"DNA-Meeting","date":"2026-05-11"}');
+    const msDate = new Date(ms.date);
+    msDate.setHours(0,0,0,0);
+    const days = diffDays(t, msDate);
+    document.getElementById('kpiMsVal').textContent = ms.label;
+    const box = document.getElementById('kpi-milestone');
+    if (days < 0) {
+      document.getElementById('kpiMsMeta').textContent = 'vor ' + Math.abs(days) + ' T · erledigt?';
+      box.className = 'kpi-box kpi-warn';
+    } else if (days === 0) {
+      document.getElementById('kpiMsMeta').textContent = 'HEUTE';
+      box.className = 'kpi-box kpi-crit';
+    } else {
+      document.getElementById('kpiMsMeta').textContent = 'in ' + days + ' Tag' + (days===1?'':'en');
+      box.className = 'kpi-box ' + (days <= 3 ? 'kpi-warn' : 'kpi-ok');
+    }
+  }
+  window.editMilestone = function() {
+    const ms = JSON.parse(ls.getItem('kpi_milestone') || '{"label":"DNA-Meeting","date":"2026-05-11"}');
+    const label = prompt('Milestone-Bezeichnung:', ms.label);
+    if (!label) return;
+    const date = prompt('Datum (YYYY-MM-DD):', ms.date);
+    if (!date) return;
+    ls.setItem('kpi_milestone', JSON.stringify({label, date}));
+    renderMilestone();
+  };
+  renderMilestone();
+
+  // KPI 4: Team-Stimmung
+  function renderMood() {
+    if (!ls.getItem('kpi_mood')) ls.setItem('kpi_mood', '{"value":7,"date":"2026-05-09"}');
+    const mood = JSON.parse(ls.getItem('kpi_mood') || '{"value":7,"date":"2026-05-09"}');
+    const box = document.getElementById('kpi-mood');
+    if (!mood.value) {
+      document.getElementById('kpiMoodVal').textContent = '–';
+      document.getElementById('kpiMoodMeta').textContent = 'nicht gesetzt · klicken';
+      box.className = 'kpi-box';
+      return;
+    }
+    const emoji = mood.value >= 8 ? '😊' : mood.value >= 5 ? '😐' : '😟';
+    document.getElementById('kpiMoodVal').textContent = emoji + ' ' + mood.value + '/10';
+    document.getElementById('kpiMoodMeta').textContent = mood.date ? fmtDate(new Date(mood.date)) : '';
+    box.className = 'kpi-box ' + (mood.value >= 7 ? 'kpi-ok' : mood.value >= 5 ? 'kpi-warn' : 'kpi-crit');
+  }
+  window.editMood = function() {
+    const val = prompt('Team-Stimmung (1–10):', '');
+    if (!val) return;
+    const n = Math.min(10, Math.max(1, parseInt(val) || 0));
+    ls.setItem('kpi_mood', JSON.stringify({value: n, date: t.toISOString().split('T')[0]}));
+    renderMood();
+  };
+  renderMood();
+
+  // KPI 5 + Modul 6 – Red Flags (einzige Quelle: Modul 6)
+  const RF_STATES_KEY = 'rf_states_v1';
+
+  function loadRfStates() {
+    try { return JSON.parse(ls.getItem(RF_STATES_KEY) || '{}'); } catch(e) { return {}; }
+  }
+  function saveRfStates(obj) { ls.setItem(RF_STATES_KEY, JSON.stringify(obj)); }
+
+  function applyRfStatesToDom(states) {
+    const items = document.querySelectorAll('#rfList li[data-rfid]');
+    const cycle = ['ok', 'aktiv', 'kritisch'];
+    items.forEach(function(li) {
+      const id = li.getAttribute('data-rfid');
+      const badge = li.querySelector('.rf-badge');
+      const state = states[id] || badge.getAttribute('data-state') || 'ok';
+      badge.setAttribute('data-state', state);
+      badge.textContent = state.toUpperCase();
+      li.className = state !== 'ok' ? 'rf-' + state : '';
+    });
+  }
+
+  function updateKpiStrip() {
+    const items = document.querySelectorAll('#rfList li[data-rfid]');
+    const active = [];
+    items.forEach(function(li) {
+      const badge = li.querySelector('.rf-badge');
+      const state = badge.getAttribute('data-state');
+      if (state === 'kritisch' || state === 'aktiv') {
+        active.push({ label: li.getAttribute('data-label'), desc: li.getAttribute('data-desc'), state });
+      }
+    });
+    // Kritisch first, then Aktiv
+    active.sort(function(a,b) { return (a.state==='kritisch'?0:1) - (b.state==='kritisch'?0:1); });
+    for (var i = 0; i < 3; i++) {
+      const f = active[i];
+      const lbl = document.getElementById('kpiflaglbl' + i);
+      const dsc = document.getElementById('kpiflagdsc' + i);
+      const dot = document.getElementById('kpiflagdot' + i);
+      if (!lbl || !dsc || !dot) continue; // elements not present in this layout
+      if (f) {
+        lbl.textContent = f.label;
+        dsc.textContent = f.desc;
+        dot.className = 'kpi-flag-dot' + (f.state === 'kritisch' ? ' crit' : '');
+      } else {
+        lbl.textContent = '–';
+        dsc.textContent = 'Keine weiteren aktiven Flags';
+        dot.className = 'kpi-flag-dot ok';
+      }
+    }
+  }
+
+  // Init Modul 6 click handlers
+  (function initRf() {
+    const states = loadRfStates();
+    // Seed defaults from HTML data-state if key not in localStorage
+    const items = document.querySelectorAll('#rfList li[data-rfid]');
+    items.forEach(function(li) {
+      const id = li.getAttribute('data-rfid');
+      if (!(id in states)) {
+        const badge = li.querySelector('.rf-badge');
+        states[id] = badge.getAttribute('data-state') || 'ok';
+      }
+    });
+    saveRfStates(states);
+    applyRfStatesToDom(states);
+    updateKpiStrip();
+
+    // Click handlers
+    const cycle = ['ok', 'aktiv', 'kritisch'];
+    items.forEach(function(li) {
+      const badge = li.querySelector('.rf-badge');
+      badge.addEventListener('click', function() {
+        const cur = badge.getAttribute('data-state') || 'ok';
+        const next = cycle[(cycle.indexOf(cur) + 1) % cycle.length];
+        badge.setAttribute('data-state', next);
+        badge.textContent = next.toUpperCase();
+        li.className = next !== 'ok' ? 'rf-' + next : '';
+        const s = loadRfStates();
+        s[li.getAttribute('data-rfid')] = next;
+        saveRfStates(s);
+        updateKpiStrip();
+      });
+    });
+  })();
 
   // ===== Timeline =====
   const tl = document.getElementById('timeline');
@@ -3964,6 +4436,71 @@ Greg</div>
       },
       todos_pre: ['7 Standardfragen griffbereit', 'Namen mental vorbereitet'],
       todos_post: []
+    },
+    { id: 'ev-0506-1', date: '2026-05-06', time: '10:00', title: 'Kennenlernen Natascha & Katharina Myslik',
+      person: 'Natascha Jeremits (BL ab 01.06.) · Katharina Myslik', duration: '1h',
+      ziel: 'Beziehungsgrundlage zu Natascha legen – sie wird ab 01.06. deine direkte Vorgesetzte. Erwartungen abholen, Rolle klären, erster Vertrauensaufbau. Katharina Myslik: Rolle verstehen.',
+      aktionen: ['Natascha: Was ist ihre wichtigste Erwartung an Greg in den ersten 30 Tagen?','Natascha: Wie stellt sie sich die Zusammenarbeit ab 01.06. vor?','Natascha: Was würde sie sich wünschen, das anders läuft als bisher?','Katharina Myslik: Rolle klären – wer ist sie, was ist ihr Bezug zum Bereich?','Zuhören, mitschreiben, keine Commitments eingehen'],
+      saetze: ['Natascha, ich freue mich, dass wir uns so früh kennenlernen – das ist mir wichtig.','Was ist deine wichtigste Erwartung an mich in den ersten 30 Tagen?','Wo siehst du die größten Baustellen im Bereich?','Wie möchtest du, dass wir kommunizieren – was funktioniert für dich am besten?','Ich nehme das mit und melde mich konkret zurück.'],
+      szenarien: {
+        best: { situation: 'Natascha offen, gibt klare Erwartungen, herzliche Atmosphäre.', reaktion: 'Tief zuhören, Notizen. Zum Schluss: konkrete Folgefrage.' },
+        likely: { situation: 'Professionell, freundlich, aber noch abwartend.', reaktion: 'Vertrauen aufbauen durch Fragen, nicht durch Reden.' },
+        worst: { situation: 'Natascha gibt wenig preis, allgemein gehalten.', reaktion: 'Akzeptieren. Zweites Gespräch in Woche 2 einplanen.' }
+      },
+      todos_pre: ['Natascha-Kontext aus team-analyse.md lesen', 'Katharina Myslik Rolle vorab klären falls möglich', 'Notizbuch & Stift'],
+      todos_post: ['Erwartungen Natascha ins Tageslog eintragen', 'Rolle Katharina Myslik klären & in team-analyse.md ergänzen', 'Folgetermin mit Natascha für Woche 2 blocken']
+    },
+    { id: 'ev-0506-2', date: '2026-05-06', time: '11:00', title: 'Weekly JFX',
+      person: 'Führungsteam (TBD)', duration: '1h',
+      ziel: 'Ersten Jour Fixe beobachten: Wer führt, wer schweigt, wer dominiert, welche Themen – Muster erkennen, nicht auftreten.',
+      aktionen: ['Wer moderiert – und wie?','Wer redet viel, wer schweigt?','Welche Themen kommen immer wieder?','Wie wird mit Konflikten umgegangen?','Auf Einladung kurz vorstellen – Vorstellungsfloskel'],
+      saetze: ['Mein Name ist Greg Hager, ich bin seit Montag als Leiter Consumer Service an Bord.','Ich bin heute vor allem hier um zuzuhören und das Format kennenzulernen.','Danke für die Einbindung – ich werde in den nächsten Wochen mehr beitragen.','Kurze Frage am Rand: Wie läuft das normalerweise ab – gibt es eine fixe Agenda?','Ich nehme mir diese Woche noch Zeit, auf jeden persönlich zuzukommen.'],
+      szenarien: {
+        best: { situation: 'Strukturierte Runde, klare Agenda, Greg wird freundlich eingebunden.', reaktion: 'Kurz vorstellen, danach zuhören.' },
+        likely: { situation: 'Eher informal, verschiedene Personen reden durcheinander.', reaktion: 'Beobachten, wer die echte Agenda setzt.' },
+        worst: { situation: 'Greg wird mit einer Erwartung oder Frage überrascht.', reaktion: 'Ich bin gerade noch in der Orientierungsphase – ich melde mich bis [Datum].' }
+      },
+      todos_pre: ['Vorstellungsfloskel parat haben', 'Notizbuch mit'],
+      todos_post: ['Beobachtungen ins Tageslog: Wer führt, wer schweigt, Energie im Raum', 'Themen notieren die immer wieder kommen']
+    },
+    { id: 'ev-0506-3', date: '2026-05-06', time: '14:00', title: 'Bereichs JFX',
+      person: 'Bereichsführungsteam (TBD)', duration: '1h',
+      ziel: 'Größere Runde beobachten – Dynamiken zwischen Peers, Rolle von Natascha, informelle Machtverhältnisse verstehen.',
+      aktionen: ['Wer sitzt wo – Sitzordnung ist Information','Wie verhält sich Natascha in der Gruppe?','Wer spricht mit wem vor und nach dem Meeting?','Themen die heiß sind – nicht kommentieren, nur notieren','Vorstellung wenn eingefordert – kurz, gleiche Floskel'],
+      saetze: ['Mein Name ist Greg Hager – freut mich, hier dabei zu sein.','Ich bin noch in der Orientierungsphase und höre heute vor allem zu.','Danke für die Einbindung – ich melde mich bei euch allen persönlich.','Spannend – wie lange gibt es dieses Format schon?','Ich schreibe mit – das hilft mir, den Kontext schnell zu verstehen.'],
+      szenarien: {
+        best: { situation: 'Offene Atmosphäre, Greg wird respektvoll eingebunden.', reaktion: 'Kurze Vorstellung, dann aktiv zuhören.' },
+        likely: { situation: 'Verschiedene Interessenslagen spürbar, etwas angespannt.', reaktion: 'Neutral bleiben. Keine Seite nehmen.' },
+        worst: { situation: 'Provokation oder Test durch Peer-Kollegen.', reaktion: 'Gute Frage – ich nehme mir die Zeit, das zu durchdenken.' }
+      },
+      todos_pre: ['Vorstellungsfloskel parat', 'Bereichsstruktur aus team-analyse.md im Kopf'],
+      todos_post: ['Sitzordnung & Dynamiken ins Tageslog', 'Auffällige Themen dokumentieren', 'Natascha-Verhalten in der Gruppe notieren']
+    },
+    { id: 'ev-0506-4', date: '2026-05-06', time: '15:00', title: 'Vorstellung Kartenservice',
+      person: 'Kartenservice-Team', duration: '30 Min',
+      ziel: 'Erste Präsenz beim Kartenservice-Team. Ton setzen: zugänglich, interessiert, nicht auftretend.',
+      aktionen: ['Vorstellungsfloskel – kurz, gleich wie JFX','Keine Versprechen, keine Ankündigungen','Namen der anwesenden Personen notieren','Eine echte Frage ans Team stellen','Abschluss: Ich komme diese Woche noch auf jeden zu'],
+      saetze: ['Mein Name ist Greg Hager, ich bin seit Montag als Leiter Consumer Service an Bord.','Ich komme aus dem Contact Center-Umfeld – die Branche hier lerne ich gerade kennen.','Ich habe mir für die ersten Wochen ein Ziel gesetzt: zuhören und verstehen.','Was macht ihr hier – in zwei Sätzen, damit ich es sofort verstehe?','Ich werde in den nächsten Tagen auf jeden persönlich zukommen.'],
+      szenarien: {
+        best: { situation: 'Team neugierig und offen, gute Energie.', reaktion: 'Wärme zeigen, kurz halten, Ende mit echter Frage.' },
+        likely: { situation: 'Abwartend, höflich, vorsichtig.', reaktion: 'Keine Erwartungen setzen. Zugänglichkeit signalisieren.' },
+        worst: { situation: 'Spürbare Skepsis oder angespannte Stimmung.', reaktion: 'Nicht defensiv. Ich bin hier um zu lernen – nicht um zu verändern.' }
+      },
+      todos_pre: ['Vorstellungsfloskel auswendig', 'Namen der TL Kartenservice vorab klären'],
+      todos_post: ['Namen der Anwesenden notieren', 'Stimmung im Team dokumentieren', 'Erste Eindrücke ins Tageslog']
+    },
+    { id: 'ev-0506-5', date: '2026-05-06', time: '15:30', title: 'Vorstellung KYC Consumer',
+      person: 'KYC Consumer Team · TL Jasmin Rabari', duration: '30 Min',
+      ziel: 'Erste Präsenz beim KYC-Team. Sensibel: Jasmin Rabari möglicher Abgang Jahresmitte – nichts andeuten, nur kennenlernen.',
+      aktionen: ['Gleiche Vorstellungsfloskel wie Kartenservice – konsistent bleiben','Jasmin Rabari direkt ansprechen und wertschätzen','Keine Fragen zu Plänen oder Zukunft des Bereichs','Namen der anwesenden Personen notieren','Abschluss: Ich komme diese Woche noch auf Jasmin persönlich zu'],
+      saetze: ['Mein Name ist Greg Hager, ich bin seit Montag als Leiter Consumer Service an Bord.','KYC ist ein zentraler Bereich – ich freue mich, euch kennenzulernen.','Jasmin, ich habe schon gehört, dass du und dein Team hier sehr viel Erfahrung mitbringt.','Ich werde in den nächsten Tagen auf jeden persönlich zukommen.','Was macht ihr hier – kurz in zwei Sätzen?'],
+      szenarien: {
+        best: { situation: 'Jasmin offen und herzlich, Team entspannt.', reaktion: 'Wärme zeigen, Wertschätzung für KYC-Expertise.' },
+        likely: { situation: 'Professionell, leicht abwartend.', reaktion: 'Kurz halten, zugänglich wirken, kein Inhalt.' },
+        worst: { situation: 'Spürbare Spannung – Jasmin wirkt unruhig oder distanziert.', reaktion: 'Nicht nachhaken. 1:1 mit Jasmin in Woche 2 priorisieren.' }
+      },
+      todos_pre: ['Jasmin Rabari Kontext aus team-analyse.md lesen', 'Nichts zum Thema Abgang/Nachfolge erwähnen'],
+      todos_post: ['Stimmung Jasmin und Team dokumentieren', 'Auffälligkeiten ins Tageslog', '1:1 mit Jasmin für Woche 2 einplanen']
     }
   ];
 
@@ -4524,19 +5061,28 @@ Greg</div>
   }
 
   function pushToGlobal(text, source) {
-    const todos = JSON.parse(ls.getItem('mck-todos') || '[]');
-    // Avoid duplicates
-    if (todos.some(t => t.title === text && t.source === source)) {
+    if (!text || !text.trim()) return;
+    const todos = getTodos2();
+    const title = text.trim();
+    if (todos.some(t => t.title === title && t.source === source)) {
       showToast('⚠ Bereits in der globalen Liste');
       return;
     }
     todos.push({
-      id: 'todo-' + Date.now() + '-' + Math.random().toString(36).slice(2,6),
-      title: text, source: source,
-      created: new Date().toISOString().slice(0, 10),
-      due: '', owner: '', priority: 'mittel', status: 'open', note: ''
+      id:      'todo-' + Date.now() + '-' + Math.random().toString(36).slice(2,6),
+      num:     getNextTodoNum(),
+      sub:     '',
+      title:   title,
+      subject: '',
+      project: '',
+      source:  source || '',
+      priority:'B',
+      due:     '',
+      status:  'open',
+      notes:   '',
+      created: new Date().toISOString().slice(0,10)
     });
-    ls.setItem('mck-todos', JSON.stringify(todos));
+    saveTodos2(todos);
     renderTodoTable();
     showToast('✓ To-Do in globale Liste übernommen');
   }
@@ -4567,110 +5113,279 @@ Greg</div>
     document.getElementById('meetingModal').classList.remove('open');
   });
 
-  // ===== GLOBAL TO-DO LIST =====
-  const OWNERS = ['–','Petra Schmidt','Lydia Đorđević','Dominik Zwickl','Joko Gruber','Tatjana Urregg','Christine','Natascha Jeremits','Mario Micki','Betriebsrat'];
-  const PRIORITY_ORDER = { hoch: 0, mittel: 1, tief: 2 };
-  let todoSortCol = 'created';
-  let todoSortAsc = false;
+  // Modal delete
+  document.getElementById('modalDeleteBtn').addEventListener('click', () => {
+    const modal = document.getElementById('meetingModal');
+    const evId = modal.dataset.currentEvent;
+    if (!evId) return;
+    if (!confirm('Termin wirklich löschen?')) return;
+    let events = [];
+    try { events = JSON.parse(ls.getItem('mck-events') || '[]'); } catch(e) {}
+    events = events.filter(e => e.id !== evId);
+    ls.setItem('mck-events', JSON.stringify(events));
+    modal.classList.remove('open');
+    initCalendar();
+    showToast('✓ Termin gelöscht');
+  });
 
-  function getTodos() {
+  // ===== SETTINGS =====
+  const SETTINGS_KEYS = {
+    thema:   'mck-settings-thema',
+    projekt: 'mck-settings-projekt',
+    quelle:  'mck-settings-quelle'
+  };
+
+  function getSettingsList(key) {
+    const raw = ls.getItem(SETTINGS_KEYS[key]) || '';
+    return raw.split('\n').map(s => s.trim()).filter(Boolean);
+  }
+
+  function saveSettingsList(key, text) {
+    ls.setItem(SETTINGS_KEYS[key], text.trim());
+  }
+
+  function refreshDataLists() {
+    ['thema','projekt','quelle'].forEach(key => {
+      const dlId = { thema:'dl-thema', projekt:'dl-projekt', quelle:'dl-quelle' }[key];
+      const dl = document.getElementById(dlId);
+      if (!dl) return;
+      const items = getSettingsList(key);
+      dl.innerHTML = items.map(v => `<option value="${v.replace(/"/g,'&quot;')}">`).join('');
+    });
+  }
+
+  function renderSettings() {
+    ['thema','projekt','quelle'].forEach(key => {
+      const taId = { thema:'settingsThema', projekt:'settingsProjekt', quelle:'settingsQuelle' }[key];
+      const cntId = { thema:'settingsThemaCount', projekt:'settingsProjektCount', quelle:'settingsQuelleCount' }[key];
+      const ta  = document.getElementById(taId);
+      const cnt = document.getElementById(cntId);
+      if (!ta) return;
+      const raw = ls.getItem(SETTINGS_KEYS[key]) || '';
+      ta.value = raw;
+      const items = raw.split('\n').map(s => s.trim()).filter(Boolean);
+      if (cnt) cnt.textContent = items.length;
+    });
+    refreshDataLists();
+  }
+
+  // Live count update while typing
+  ['settingsThema','settingsProjekt','settingsQuelle'].forEach(id => {
+    const ta = document.getElementById(id);
+    if (!ta) return;
+    const key = { settingsThema:'thema', settingsProjekt:'projekt', settingsQuelle:'quelle' }[id];
+    const cntId = { settingsThema:'settingsThemaCount', settingsProjekt:'settingsProjektCount', settingsQuelle:'settingsQuelleCount' }[id];
+    ta.addEventListener('input', () => {
+      const items = ta.value.split('\n').map(s => s.trim()).filter(Boolean);
+      const cnt = document.getElementById(cntId);
+      if (cnt) cnt.textContent = items.length;
+    });
+  });
+
+  document.getElementById('settingsSaveBtn')?.addEventListener('click', () => {
+    ['settingsThema','settingsProjekt','settingsQuelle'].forEach(id => {
+      const ta = document.getElementById(id);
+      if (!ta) return;
+      const key = { settingsThema:'thema', settingsProjekt:'projekt', settingsQuelle:'quelle' }[id];
+      saveSettingsList(key, ta.value);
+    });
+    refreshDataLists();
+    const fb = document.getElementById('settingsSaveFeedback');
+    if (fb) { fb.style.display = 'inline'; setTimeout(() => { fb.style.display = 'none'; }, 2000); }
+  });
+
+  renderSettings();
+
+  // ===== GLOBAL TO-DO LIST (ABC + GTD) =====
+
+  // Austrian public holidays 2026 (fixed + moveable)
+  const AT_HOLIDAYS = new Set([
+    '2026-01-01','2026-01-06','2026-04-06','2026-05-01',
+    '2026-05-14','2026-05-25','2026-06-04','2026-08-15',
+    '2026-10-26','2026-11-01','2026-12-08','2026-12-25','2026-12-26'
+  ]);
+
+  function isWorkday(dateStr) {
+    const d = new Date(dateStr + 'T00:00:00');
+    const dow = d.getDay();
+    return dow !== 0 && dow !== 6 && !AT_HOLIDAYS.has(dateStr);
+  }
+
+  function workdaysBetween(fromStr, toStr) {
+    if (!fromStr || !toStr) return null;
+    const from = new Date(fromStr + 'T00:00:00');
+    const to   = new Date(toStr   + 'T00:00:00');
+    if (isNaN(from.getTime()) || isNaN(to.getTime())) return null;
+    let count = 0;
+    const sign = to >= from ? 1 : -1;
+    let cur = new Date(from);
+    while (sign > 0 ? cur < to : cur > to) {
+      if (isWorkday(cur.toISOString().slice(0,10))) count++;
+      cur.setDate(cur.getDate() + sign);
+    }
+    return count * sign;
+  }
+
+  function getTodos2() {
     try { return JSON.parse(ls.getItem('mck-todos') || '[]'); } catch(e) { return []; }
   }
-  function saveTodos(todos) {
-    ls.setItem('mck-todos', JSON.stringify(todos));
+  function saveTodos2(arr) {
+    ls.setItem('mck-todos', JSON.stringify(arr));
   }
 
-  function updateSourceFilter() {
+  function getNextTodoNum() {
+    const nums = getTodos2().map(t => t.num || 0);
+    return nums.length ? Math.max(...nums) + 1 : 1;
+  }
+
+  // Migrate old-format todos (priority: hoch/mittel/tief → A/B/C, add new fields)
+  function migrateTodos() {
+    let todos;
+    try { todos = JSON.parse(ls.getItem('mck-todos') || '[]'); } catch(e) { return; }
+    let changed = false;
+    const usedNums = new Set(todos.filter(t => t.num).map(t => t.num));
+    let nextNum = 1;
+    todos.forEach(t => {
+      if (t.priority === 'hoch')   { t.priority = 'A'; changed = true; }
+      else if (t.priority === 'mittel') { t.priority = 'B'; changed = true; }
+      else if (t.priority === 'tief')   { t.priority = 'C'; changed = true; }
+      if (!['A','B','C'].includes(t.priority)) { t.priority = 'B'; changed = true; }
+      if (t.sub     === undefined) { t.sub     = ''; changed = true; }
+      if (t.subject === undefined) { t.subject = ''; changed = true; }
+      if (t.project === undefined) { t.project = ''; changed = true; }
+      if (t.notes   === undefined) { t.notes   = t.note || ''; changed = true; }
+      if (!t.num) {
+        while (usedNums.has(nextNum)) nextNum++;
+        t.num = nextNum; usedNums.add(nextNum); nextNum++; changed = true;
+      }
+    });
+    if (changed) saveTodos2(todos);
+  }
+
+  function prioDot(p) {
+    const dots = { A:'🔴', B:'🟡', C:'🟢' };
+    return '<span title="Priorität ' + p + '" style="font-size:15px;cursor:default;">' + (dots[p]||'⚪') + '</span>';
+  }
+
+  function statusLabel(s) {
+    return { open:'○ Offen', progress:'◑ In Arbeit', hold:'⏸ Warten', done:'✓ Erledigt' }[s] || s;
+  }
+  function statusColor(s) {
+    return { open:'var(--text-muted)', progress:'var(--accent)', hold:'#e67e22', done:'var(--success)' }[s] || 'inherit';
+  }
+
+  // Sort: top-level items by num, sub-items inserted under their parent
+  function todosSorted(todos) {
+    const top  = todos.filter(t => !t.sub).sort((a,b) => (a.num||0)-(b.num||0));
+    const subs = todos.filter(t =>  t.sub);
+    const result = [];
+    const placed = new Set();
+    top.forEach(item => {
+      result.push(item);
+      placed.add(item.id);
+      const myKey = String(item.num);
+      const mySubs = subs
+        .filter(s => s.sub.split('.')[0] === myKey)
+        .sort((a,b) => a.sub.localeCompare(b.sub, undefined, {numeric:true}));
+      mySubs.forEach(s => { result.push(s); placed.add(s.id); });
+    });
+    subs.filter(s => !placed.has(s.id))
+        .sort((a,b) => a.sub.localeCompare(b.sub, undefined, {numeric:true}))
+        .forEach(s => result.push(s));
+    return result;
+  }
+
+  function updateSourceFilter2() {
     const sel = document.getElementById('todoFilterSource');
-    const current = sel.value;
-    const todos = getTodos();
-    const sources = [...new Set(todos.map(t => t.source).filter(Boolean))].sort();
+    if (!sel) return;
+    const cur = sel.value;
+    const sources = [...new Set(getTodos2().map(t=>t.source).filter(Boolean))].sort();
     sel.innerHTML = '<option value="">Quelle: alle</option>';
     sources.forEach(s => {
-      const opt = document.createElement('option');
-      opt.value = s; opt.textContent = s;
-      if (s === current) opt.selected = true;
-      sel.appendChild(opt);
+      const o = document.createElement('option');
+      o.value = s; o.textContent = s;
+      if (s === cur) o.selected = true;
+      sel.appendChild(o);
     });
   }
 
   function renderTodoTable() {
-    const todos = getTodos();
-    updateSourceFilter();
+    migrateTodos();
+    const allTodos = getTodos2();
+    updateSourceFilter2();
 
-    // Read filters
-    const fStatus   = document.getElementById('todoFilterStatus')?.value || '';
+    const fStatus   = document.getElementById('todoFilterStatus')?.value   || '';
     const fPriority = document.getElementById('todoFilterPriority')?.value || '';
-    const fSource   = document.getElementById('todoFilterSource')?.value || '';
-    const fSearch   = (document.getElementById('todoSearchInput')?.value || '').toLowerCase().trim();
+    const fSource   = document.getElementById('todoFilterSource')?.value   || '';
+    const fSearch   = (document.getElementById('todoSearchInput')?.value   || '').toLowerCase().trim();
+    const today     = new Date().toISOString().slice(0,10);
 
-    // Split done / active
-    let active = todos.filter(t => t.status !== 'done');
-    let done   = todos.filter(t => t.status === 'done');
+    let active = allTodos.filter(t => t.status !== 'done');
+    let done   = allTodos.filter(t => t.status === 'done');
 
-    // Apply filters to active
-    if (fStatus)   active = active.filter(t => t.status === fStatus);
+    if (fStatus)   active = active.filter(t => t.status   === fStatus);
     if (fPriority) active = active.filter(t => t.priority === fPriority);
-    if (fSource)   active = active.filter(t => t.source === fSource);
+    if (fSource)   active = active.filter(t => t.source   === fSource);
     if (fSearch)   active = active.filter(t =>
-      (t.title || '').toLowerCase().includes(fSearch) ||
-      (t.note  || '').toLowerCase().includes(fSearch) ||
-      (t.source|| '').toLowerCase().includes(fSearch)
+      (t.title  ||'').toLowerCase().includes(fSearch) ||
+      (t.notes  ||'').toLowerCase().includes(fSearch) ||
+      (t.source ||'').toLowerCase().includes(fSearch) ||
+      (t.subject||'').toLowerCase().includes(fSearch) ||
+      (t.project||'').toLowerCase().includes(fSearch)
     );
 
-    // Sort
-    active.sort((a, b) => {
-      let va = a[todoSortCol] || '';
-      let vb = b[todoSortCol] || '';
-      if (todoSortCol === 'priority') { va = PRIORITY_ORDER[va] ?? 9; vb = PRIORITY_ORDER[vb] ?? 9; }
-      const cmp = typeof va === 'number' ? va - vb : va.localeCompare(vb);
-      return todoSortAsc ? cmp : -cmp;
-    });
-
-    // Render active rows
-    const tbody = document.getElementById('todoTableBody');
+    const sorted = todosSorted(active);
+    const tbody  = document.getElementById('todoTableBody');
+    if (!tbody) return;
     tbody.innerHTML = '';
-    if (active.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--text-muted);padding:20px;">Keine To-Dos für diese Filter.</td></tr>';
+
+    if (sorted.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="12" style="text-align:center;color:var(--text-muted);padding:24px;">Keine To-Dos für diese Filter.</td></tr>';
     } else {
-      active.forEach((todo, idx) => {
-        const tr = document.createElement('tr');
-        const priorityLabel = { hoch: '🔴 Hoch', mittel: '🟡 Mittel', tief: '🟢 Tief' }[todo.priority] || todo.priority;
-        const ownerOpts = OWNERS.map(o =>
-          `<option value="${o}" ${(todo.owner||'–')===o?'selected':''}>${o}</option>`).join('');
+      sorted.forEach(todo => {
+        const tr    = document.createElement('tr');
+        const isSub = !!todo.sub;
+        const wd    = workdaysBetween(today, todo.due);
+        let wdCell  = '<span style="color:var(--text-muted)">–</span>';
+        if (wd !== null) {
+          if (wd < 0)       wdCell = '<b style="color:#e74c3c;">' + wd + ' AT</b>';
+          else if (wd === 0) wdCell = '<b style="color:#e67e22;">Heute</b>';
+          else if (wd <= 2)  wdCell = '<b style="color:#e67e22;">' + wd + ' AT</b>';
+          else               wdCell = '<span style="color:var(--text-muted);">' + wd + ' AT</span>';
+        }
+        const notesEsc = (todo.notes||'').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        tr.style.background = isSub ? 'var(--surface)' : '';
+        const tid = todo.id;
+        const prioOpts = ['A','B','C'].map(v =>
+          `<option value="${v}" ${todo.priority===v?'selected':''}>${{A:'🔴 A',B:'🟡 B',C:'🟢 C'}[v]}</option>`).join('');
+        const statusOpts = [['open','○ Offen'],['progress','◑ In Arbeit'],['hold','⏸ Warten'],['done','✓ Erledigt']].map(([v,l]) =>
+          `<option value="${v}" ${todo.status===v?'selected':''}>${l}</option>`).join('');
         tr.innerHTML = `
-          <td style="color:var(--text-muted);font-size:12px;">${idx + 1}</td>
-          <td style="font-weight:500;">${todo.title}</td>
-          <td style="font-size:12px;color:var(--text-muted);">${todo.source || '–'}</td>
-          <td style="font-size:12px;">${todo.created || '–'}</td>
-          <td><input type="date" value="${todo.due||''}" style="border:1px solid var(--border);border-radius:4px;padding:2px 4px;background:var(--surface-2);color:var(--text);font-size:12px;font-family:inherit;" data-id="${todo.id}" data-field="due"></td>
-          <td>
-            <select class="status-select" data-id="${todo.id}" data-field="owner">
-              ${ownerOpts}
-            </select>
+          <td style="text-align:center;color:var(--text-muted);font-size:11px;">${todo.num||''}</td>
+          <td style="text-align:center;color:var(--text-muted);font-size:11px;">${todo.sub||''}</td>
+          <td style="font-weight:${isSub?400:500};font-size:${isSub?13:14}px;${isSub?'padding-left:20px;color:var(--text-muted);':''}">${todo.title}</td>
+          <td><input class="td-inline" type="text" list="dl-thema" value="${(todo.subject||'').replace(/"/g,'&quot;')}" data-id="${tid}" data-field="subject" placeholder="–"></td>
+          <td><input class="td-inline" type="text" list="dl-projekt" value="${(todo.project||'').replace(/"/g,'&quot;')}" data-id="${tid}" data-field="project" placeholder="–"></td>
+          <td><input class="td-inline" type="text" list="dl-quelle" value="${(todo.source||'').replace(/"/g,'&quot;')}" data-id="${tid}" data-field="source" placeholder="–"></td>
+          <td style="text-align:center;padding:4px 2px;">
+            <select class="td-select td-prio" data-id="${tid}" data-field="priority">${prioOpts}</select>
           </td>
-          <td>
-            <select class="status-select" data-id="${todo.id}" data-field="priority">
-              <option value="hoch" ${todo.priority==='hoch'?'selected':''}>🔴 Hoch</option>
-              <option value="mittel" ${todo.priority==='mittel'?'selected':''}>🟡 Mittel</option>
-              <option value="tief" ${todo.priority==='tief'?'selected':''}>🟢 Tief</option>
-            </select>
+          <td style="padding:4px 2px;">
+            <input class="td-inline td-date" type="date" value="${todo.due||''}" data-id="${tid}" data-field="due">
           </td>
-          <td>
-            <select class="status-select" data-id="${todo.id}" data-field="status">
-              <option value="open" ${todo.status==='open'?'selected':''}>Offen</option>
-              <option value="progress" ${todo.status==='progress'?'selected':''}>In Arbeit</option>
-              <option value="done" ${todo.status==='done'?'selected':''}>Erledigt</option>
-            </select>
+          <td style="text-align:center;font-size:12px;" id="wd-${tid}">${wdCell}</td>
+          <td style="padding:4px 2px;">
+            <select class="td-select td-status" data-id="${tid}" data-field="status" style="color:${statusColor(todo.status)};">${statusOpts}</select>
           </td>
-          <td>
-            <button class="todo-action-btn" data-delete="${todo.id}" title="Löschen">🗑</button>
+          <td style="font-size:12px;color:var(--text-muted);white-space:pre-wrap;word-break:break-word;">${notesEsc}</td>
+          <td style="text-align:center;">
+            <button class="todo-action-btn" data-edit="${tid}" title="Alle Felder bearbeiten" style="background:none;border:none;cursor:pointer;font-size:14px;padding:2px 4px;">✎</button>
           </td>`;
         tbody.appendChild(tr);
       });
     }
 
-    // Render done history
+    // Done history
     const histCount = document.getElementById('todoHistoryCount');
     const histTable = document.getElementById('todoHistoryTable');
     if (histCount) histCount.textContent = done.length;
@@ -4678,113 +5393,181 @@ Greg</div>
       if (done.length === 0) {
         histTable.innerHTML = '<p style="color:var(--text-muted);font-style:italic;padding:10px 0;">Noch nichts erledigt.</p>';
       } else {
-        histTable.innerHTML = done.map(t => `
-          <div style="display:flex;gap:12px;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px;align-items:center;">
-            <span style="color:var(--success);font-size:11px;white-space:nowrap;">✓ Erledigt</span>
-            <span style="flex:1;">${t.title}</span>
-            <span style="color:var(--text-muted);font-size:11px;">${t.source||''}</span>
-            <button class="todo-action-btn" data-restore="${t.id}" title="Wiederherstellen" style="font-size:11px;">↩</button>
+        histTable.innerHTML = done.slice().reverse().map(t => `
+          <div style="display:flex;gap:12px;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px;align-items:flex-start;">
+            <span style="color:var(--success);font-size:11px;white-space:nowrap;padding-top:2px;">✓</span>
+            <div style="flex:1;"><span style="color:var(--text-muted);font-size:11px;margin-right:6px;">#${t.num||'?'}</span>${t.title}${t.notes?'<div style="font-size:11px;color:var(--text-muted);margin-top:2px;">'+t.notes.replace(/</g,'&lt;')+'</div>':''}</div>
+            <span style="color:var(--text-muted);font-size:11px;white-space:nowrap;">${t.source||''}</span>
+            <button class="todo-action-btn" data-restore="${t.id}" title="Wiederherstellen" style="background:none;border:1px solid var(--border);border-radius:4px;cursor:pointer;font-size:11px;padding:2px 6px;">↩</button>
           </div>`).join('');
       }
     }
-
-    // Update sort indicators in headers
-    document.querySelectorAll('.todo-table th[data-sort]').forEach(th => {
-      const col = th.dataset.sort;
-      th.textContent = th.textContent.replace(/ [▲▼]$/, '');
-      if (col === todoSortCol) th.textContent += todoSortAsc ? ' ▲' : ' ▼';
-    });
   }
 
-  function todoUpdateField(id, field, value) {
-    const todos = getTodos();
-    const t = todos.find(t => t.id === id);
+  // ─── MODAL ───────────────────────────────────────────────────────────────
+  let _todoEditId = null;
+
+  function openTodoModal(todo) {
+    _todoEditId = todo ? todo.id : null;
+    document.getElementById('todoModalHeading').textContent = todo ? ('To-Do #' + todo.num + ' bearbeiten') : 'Neues To-Do';
+    document.getElementById('tmTitle').value    = todo ? (todo.title   ||'') : '';
+    document.getElementById('tmSubject').value  = todo ? (todo.subject ||'') : '';
+    document.getElementById('tmProject').value  = todo ? (todo.project ||'') : '';
+    document.getElementById('tmSource').value   = todo ? (todo.source  ||'') : '';
+    document.getElementById('tmSub').value      = todo ? (todo.sub     ||'') : '';
+    document.getElementById('tmPriority').value = todo ? (todo.priority||'B') : 'B';
+    document.getElementById('tmDue').value      = todo ? (todo.due     ||'') : '';
+    document.getElementById('tmStatus').value   = todo ? (todo.status  ||'open') : 'open';
+    document.getElementById('tmNotes').value    = todo ? (todo.notes   ||'') : '';
+    document.getElementById('todoModalError').style.display = 'none';
+    document.getElementById('todoModal').style.display = 'flex';
+    setTimeout(() => document.getElementById('tmTitle').focus(), 50);
+  }
+
+  function closeTodoModal() {
+    document.getElementById('todoModal').style.display = 'none';
+    _todoEditId = null;
+  }
+
+  document.getElementById('todoModal').addEventListener('click', e => {
+    if (e.target === document.getElementById('todoModal')) closeTodoModal();
+  });
+  document.getElementById('todoModalClose').addEventListener('click',  closeTodoModal);
+  document.getElementById('todoModalCancel').addEventListener('click', closeTodoModal);
+
+  document.getElementById('todoModalSave').addEventListener('click', () => {
+    const title = document.getElementById('tmTitle').value.trim();
+    if (!title) { document.getElementById('todoModalError').style.display = 'block'; return; }
+    const todos = getTodos2();
+    let savedNum = null;
+    if (_todoEditId) {
+      const t = todos.find(x => x.id === _todoEditId);
+      if (t) {
+        t.title   = title;
+        t.subject = document.getElementById('tmSubject').value.trim();
+        t.project = document.getElementById('tmProject').value.trim();
+        t.source  = document.getElementById('tmSource').value.trim();
+        t.sub     = document.getElementById('tmSub').value.trim();
+        t.priority= document.getElementById('tmPriority').value;
+        t.due     = document.getElementById('tmDue').value;
+        t.status  = document.getElementById('tmStatus').value;
+        t.notes   = document.getElementById('tmNotes').value.trim();
+        if (t.status === 'done' && !t.doneAt) t.doneAt = new Date().toISOString();
+        savedNum = t.num;
+      }
+    } else {
+      const newTodo = {
+        id:      'todo-' + Date.now() + '-' + Math.random().toString(36).slice(2,6),
+        num:     getNextTodoNum(),
+        sub:     document.getElementById('tmSub').value.trim(),
+        title:   title,
+        subject: document.getElementById('tmSubject').value.trim(),
+        project: document.getElementById('tmProject').value.trim(),
+        source:  document.getElementById('tmSource').value.trim(),
+        priority:document.getElementById('tmPriority').value,
+        due:     document.getElementById('tmDue').value,
+        status:  document.getElementById('tmStatus').value,
+        notes:   document.getElementById('tmNotes').value.trim(),
+        created: new Date().toISOString().slice(0,10)
+      };
+      if (newTodo.status === 'done') newTodo.doneAt = new Date().toISOString();
+      todos.push(newTodo);
+      savedNum = newTodo.num;
+    }
+    saveTodos2(todos);
+    closeTodoModal();
+    renderTodoTable();
+    showToast(_todoEditId ? ('✓ To-Do #' + savedNum + ' aktualisiert') : ('✓ To-Do #' + savedNum + ' angelegt'));
+  });
+
+  // Add button
+  document.getElementById('todoAddNewBtn')?.addEventListener('click', () => openTodoModal(null));
+
+  // Edit clicks (event delegation on tbody)
+  // Inline save: change on selects + date, blur on text inputs
+  function todoInlineSave(id, field, value) {
+    const todos = getTodos2();
+    const t = todos.find(x => x.id === id);
     if (!t) return;
     t[field] = value;
     if (field === 'status' && value === 'done') t.doneAt = new Date().toISOString();
-    saveTodos(todos);
-    renderTodoTable();
+    saveTodos2(todos);
+    // Update status color live
+    if (field === 'status') {
+      const sel = document.querySelector(`select[data-id="${id}"][data-field="status"]`);
+      if (sel) sel.style.color = statusColor(value);
+      if (value === 'done') renderTodoTable(); // move to Erledigt
+    }
+    // Refresh AT cell when due date changes
+    if (field === 'due') {
+      const today = new Date().toISOString().slice(0,10);
+      const wd = workdaysBetween(today, value);
+      const wdCell = document.getElementById('wd-' + id);
+      if (wdCell) {
+        if (wd === null) wdCell.innerHTML = '<span style="color:var(--text-muted)">–</span>';
+        else if (wd < 0)       wdCell.innerHTML = '<b style="color:#e74c3c;">' + wd + ' AT</b>';
+        else if (wd === 0)     wdCell.innerHTML = '<b style="color:#e67e22;">Heute</b>';
+        else if (wd <= 2)      wdCell.innerHTML = '<b style="color:#e67e22;">' + wd + ' AT</b>';
+        else                   wdCell.innerHTML = '<span style="color:var(--text-muted);">' + wd + ' AT</span>';
+      }
+    }
   }
 
-  function deleteTodo(id) {
-    if (!confirm('Wirklich löschen?')) return;
-    saveTodos(getTodos().filter(t => t.id !== id));
-    renderTodoTable();
-  }
-
-  // Event delegation for table body
   document.getElementById('todoTableBody').addEventListener('change', e => {
     const el = e.target;
     const id = el.dataset.id;
     const field = el.dataset.field;
-    if (id && field) todoUpdateField(id, field, el.value);
+    if (id && field) todoInlineSave(id, field, el.value);
   });
-  document.getElementById('todoTableBody').addEventListener('input', e => {
+
+  document.getElementById('todoTableBody').addEventListener('blur', e => {
     const el = e.target;
     const id = el.dataset.id;
     const field = el.dataset.field;
-    if (id && field) todoUpdateField(id, field, el.value);
-  });
+    if (id && field && el.tagName === 'INPUT' && el.type === 'text') {
+      todoInlineSave(id, field, el.value.trim());
+    }
+  }, true); // capture=true for blur
+
   document.getElementById('todoTableBody').addEventListener('click', e => {
-    const del = e.target.closest('[data-delete]');
-    if (del) deleteTodo(del.dataset.delete);
-    const restore = e.target.closest('[data-restore]');
-    if (restore) todoUpdateField(restore.dataset.restore, 'status', 'open');
+    const btn = e.target.closest('[data-edit]');
+    if (btn) {
+      const t = getTodos2().find(x => x.id === btn.dataset.edit);
+      if (t) openTodoModal(t);
+    }
   });
 
-  // Filter listeners
+  // Restore from done history
+  document.getElementById('todoHistoryTable')?.addEventListener('click', e => {
+    const btn = e.target.closest('[data-restore]');
+    if (btn) {
+      const todos = getTodos2();
+      const t = todos.find(x => x.id === btn.dataset.restore);
+      if (t) { t.status = 'open'; delete t.doneAt; saveTodos2(todos); renderTodoTable(); }
+    }
+  });
+
+  // Filters
   ['todoFilterStatus','todoFilterPriority','todoFilterSource'].forEach(id => {
     document.getElementById(id)?.addEventListener('change', () => renderTodoTable());
   });
   document.getElementById('todoSearchInput')?.addEventListener('input', () => renderTodoTable());
-
-  // Reset filters
   document.getElementById('todoResetFilters')?.addEventListener('click', () => {
-    document.getElementById('todoFilterStatus').value = '';
-    document.getElementById('todoFilterPriority').value = '';
-    document.getElementById('todoFilterSource').value = '';
-    document.getElementById('todoSearchInput').value = '';
-    todoSortCol = 'created'; todoSortAsc = false;
-    renderTodoTable();
-  });
-
-  // Column sort
-  document.querySelectorAll('.todo-table th[data-sort]').forEach(th => {
-    th.addEventListener('click', () => {
-      const col = th.dataset.sort;
-      if (todoSortCol === col) { todoSortAsc = !todoSortAsc; }
-      else { todoSortCol = col; todoSortAsc = true; }
-      renderTodoTable();
+    ['todoFilterStatus','todoFilterPriority','todoFilterSource'].forEach(id => {
+      const el = document.getElementById(id); if (el) el.value = '';
     });
+    const si = document.getElementById('todoSearchInput'); if (si) si.value = '';
+    renderTodoTable();
   });
 
   // Done history accordion
   document.getElementById('todoHistoryHeader')?.addEventListener('click', () => {
-    const content = document.getElementById('todoHistoryContent');
-    const toggle  = document.getElementById('todoHistoryToggle');
-    const open = content.style.display === 'none';
-    content.style.display = open ? 'block' : 'none';
-    toggle.textContent = open ? '▼' : '▶';
+    const c = document.getElementById('todoHistoryContent');
+    const t = document.getElementById('todoHistoryToggle');
+    const open = c.style.display === 'none';
+    c.style.display = open ? 'block' : 'none';
+    t.textContent   = open ? '▼' : '▶';
   });
-
-  // + Neues To-Do
-  document.getElementById('todoAddNewBtn')?.addEventListener('click', () => {
-    const title = prompt('Titel des To-Dos:');
-    if (!title || !title.trim()) return;
-    const todos = getTodos();
-    todos.unshift({
-      id: 'todo-' + Date.now(),
-      title: title.trim(),
-      source: '',
-      created: new Date().toISOString().slice(0, 10),
-      due: '', owner: '–', priority: 'mittel', status: 'open', note: ''
-    });
-    saveTodos(todos);
-    renderTodoTable();
-    showToast('✓ To-Do hinzugefügt');
-  });
-
-  function updateTodoStatus(id, status) { todoUpdateField(id, 'status', status); }
 
   // ===== NOTIZEN =====
   const NOTIZEN_KEY = 'mck-notizen';
@@ -4879,6 +5662,7 @@ Greg</div>
     if (tabId === 'notizen')  renderNotizen();
     if (tabId === 'todo')     renderTodoTable();
     if (tabId === 'termine')  initCalendar();
+    if (tabId === 'settings') renderSettings();
   }
 
   document.querySelectorAll('.tab-btn').forEach(btn => {
