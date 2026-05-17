@@ -151,8 +151,10 @@
   .btn { padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer; font-size: 14px; font-weight: 500; transition: all 0.15s; font-family: inherit; }
   .btn-primary  { background: var(--accent); color: white; }
   .btn-primary:hover  { background: #0077ed; }
-  .btn-secondary { background: #e8e8ed; color: var(--text); }
+  .btn-secondary { background: #e8e8ed; color: #1d1d1f; }
   .btn-secondary:hover { background: #d2d2d7; }
+  [data-theme="dark"] .btn-secondary { background: #48484a; color: #f5f5f7; }
+  [data-theme="dark"] .btn-secondary:hover { background: #636366; }
   .btn-ghost { background: transparent; color: var(--text-muted); border: 1px solid var(--border); }
   .btn-ghost:hover { background: var(--bg); }
   .btn-sm { padding: 5px 11px; font-size: 13px; border-radius: 7px; }
@@ -465,15 +467,31 @@
   .proj-stat { font-size: 12px; padding: 2px 8px; border-radius: 20px; font-weight: 600; }
   .proj-stat-notes   { background: rgba(255,255,255,0.22); color: #fff; }
   .proj-stat-actions { background: rgba(255,255,255,0.22); color: #fff; }
-  .proj-split { display: grid; grid-template-columns: 1fr 1fr; min-height: 60px; }
-  .proj-col { padding: 10px 12px; display: flex; flex-direction: column; gap: 4px; }
-  .proj-col:first-child { border-right: 1px solid var(--border); }
-  .proj-col-header { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); padding-bottom: 6px; margin-bottom: 2px; border-bottom: 1px solid var(--border); }
+  .proj-split { display: grid; grid-template-columns: 2fr 1fr 1fr; min-height: 60px; overflow: hidden; }
+  .proj-col { padding: 10px 12px; display: flex; flex-direction: column; gap: 4px; min-width: 0; overflow: hidden; }
+  .proj-col:not(:last-child) { border-right: 1px solid var(--border); }
+  .proj-col-header { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); padding-bottom: 6px; margin-bottom: 2px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
   .proj-row { display: flex; align-items: center; gap: 7px; padding: 5px 4px; border-radius: 6px; cursor: pointer; transition: background 0.12s; }
   .proj-row:hover { background: var(--bg); }
   .proj-row-text { font-size: 13px; font-weight: 500; flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .proj-row-meta { display: flex; gap: 4px; align-items: center; flex-shrink: 0; }
   .proj-empty { color: var(--text-muted); font-size: 12px; padding: 8px 4px; font-style: italic; }
+  /* Notes column – full text */
+  .proj-note-block { display: flex; flex-direction: column; gap: 3px; padding: 6px 4px; border-radius: 6px; cursor: pointer; transition: background 0.12s; border-bottom: 1px solid var(--border); }
+  .proj-note-block:last-child { border-bottom: none; }
+  .proj-note-block:hover { background: var(--bg); }
+  .proj-note-subject { font-size: 13px; font-weight: 600; color: var(--text); }
+  .proj-note-body { font-size: 12px; color: var(--text-muted); line-height: 1.5; white-space: pre-wrap; word-break: break-word; }
+  .proj-note-footer { display: flex; gap: 4px; align-items: center; flex-wrap: wrap; margin-top: 2px; }
+  /* Next Steps column */
+  .proj-next-row { display: flex; align-items: flex-start; gap: 6px; padding: 4px 2px; border-radius: 5px; }
+  .proj-next-row:hover { background: var(--bg); }
+  .proj-next-text { font-size: 12px; flex: 1; line-height: 1.4; word-break: break-word; cursor: default; }
+  .proj-next-text.done { text-decoration: line-through; opacity: 0.45; }
+  .proj-next-del { font-size: 13px; color: var(--text-muted); background: none; border: none; cursor: pointer; padding: 0; opacity: 0; line-height: 1; flex-shrink: 0; }
+  .proj-next-row:hover .proj-next-del { opacity: 1; }
+  .proj-next-input { width: 100%; padding: 5px 8px; border: 1px dashed var(--border); border-radius: 6px; font-size: 12px; background: transparent; color: var(--text); outline: none; font-family: inherit; margin-top: 6px; }
+  .proj-next-input:focus { border-color: var(--accent); border-style: solid; }
 
   /* ── DAB – DOKUMENT-BIBLIOTHEK ── */
   .dab-page { padding: 20px 24px; }
@@ -522,6 +540,29 @@
     .main-grid { padding: 14px; grid-template-columns: 1fr; }
     .type-selector { flex-direction: column; }
   }
+
+  /* ── QUICK-ASSIGN ── */
+  .qa-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.5); display:flex; align-items:flex-start; justify-content:center; z-index:1100; padding:20px; backdrop-filter:blur(3px); overflow-y:auto; }
+  .qa-overlay.hidden { display:none; }
+  .qa-modal { background:var(--surface); border-radius:16px; width:100%; max-width:920px; margin:auto; box-shadow:0 24px 64px rgba(0,0,0,0.25); display:flex; flex-direction:column; }
+  .qa-header { padding:16px 20px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); position:sticky; top:0; background:var(--surface); border-radius:16px 16px 0 0; z-index:10; gap:12px; flex-wrap:wrap; }
+  .qa-header-left { display:flex; align-items:center; gap:10px; }
+  .qa-header-right { display:flex; align-items:center; gap:8px; }
+  .qa-badge { font-size:12px; padding:2px 9px; border-radius:20px; font-weight:600; background:var(--commit-bg); color:var(--commit); white-space:nowrap; }
+  .qa-badge.done { background:var(--deliver-bg); color:var(--deliver); }
+  .qa-section-header { padding:8px 16px; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--text-muted); background:var(--bg); border-bottom:1px solid var(--border); border-top:1px solid var(--border); }
+  .qa-row { display:grid; grid-template-columns:28px 1fr 110px 150px 140px; align-items:center; gap:8px; padding:8px 14px; border-bottom:1px solid var(--border); transition:background .1s; }
+  .qa-row:hover { background:var(--bg); }
+  .qa-icon { font-size:15px; text-align:center; }
+  .qa-subject { font-size:13px; font-weight:500; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--text); }
+  .qa-select { font-size:12px; padding:4px 6px; border:1px solid var(--border); border-radius:6px; background:var(--surface); color:var(--text); cursor:pointer; width:100%; }
+  .qa-select:focus { outline:none; border-color:var(--primary); }
+  .qa-val-commit  { background:var(--commit-bg)  !important; color:var(--commit)  !important; border-color:var(--commit)  !important; font-weight:600; }
+  .qa-val-improve { background:var(--improve-bg) !important; color:var(--improve) !important; border-color:var(--improve) !important; font-weight:600; }
+  .qa-val-deliver { background:var(--deliver-bg) !important; color:var(--deliver) !important; border-color:var(--deliver) !important; font-weight:600; }
+  .qa-col-labels { display:grid; grid-template-columns:28px 1fr 110px 150px 140px; gap:8px; padding:5px 14px 4px; border-bottom:1px solid var(--border); background:var(--surface); }
+  .qa-col-label { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--text-muted); }
+  .qa-empty { padding:40px; text-align:center; color:var(--text-muted); font-size:15px; }
 </style>
 </head>
 <body>
@@ -533,6 +574,7 @@
     <button class="btn-icon" id="cloudPushBtn2" onclick="cloudPushD2()" title="Cloud Push – Daten speichern" style="font-size:15px;">☁</button>
     <button class="btn-icon" id="cloudPullBtn2" onclick="cloudPullD2()" title="Cloud Pull – Daten laden" style="font-size:15px;">📥</button>
     <button class="btn-icon" id="themeBtn" onclick="toggleTheme()" title="Dark/Light Mode" style="font-size:16px;">🌙</button>
+    <button class="btn-icon" onclick="openQuickAssign()" title="Quick-Assign – Notes & Actions kategorisieren">🏷</button>
     <button class="btn-icon" onclick="openSettings()" title="Einstellungen">⚙️</button>
     <button class="btn btn-primary" onclick="openAddInfo()">+ Add Info</button>
   </div>
@@ -564,6 +606,7 @@
     <option value="Deliver">Deliver</option>
   </select>
   <select class="filter-select" onchange="renderMain()" id="sortBy">
+    <option value="prio">Prio (A→D)</option>
     <option value="date-desc">Newest first</option>
     <option value="date-asc">Oldest first</option>
     <option value="value">By Value</option>
@@ -575,8 +618,8 @@
     <option value="all">All</option>
   </select>
   <div class="view-toggle">
-    <button class="view-btn active" id="viewBtnBox"  onclick="switchView('box')"  title="Box view">⊞ Box</button>
-    <button class="view-btn"        id="viewBtnList" onclick="switchView('list')" title="List view">☰ List</button>
+    <button class="view-btn"        id="viewBtnBox"  onclick="switchView('box')"  title="Box view">⊞ Box</button>
+    <button class="view-btn active" id="viewBtnList" onclick="switchView('list')" title="List view">☰ List</button>
   </div>
 </div>
 
@@ -734,22 +777,19 @@
       </div>
 
       <!-- Wrap Up Comparison Panel (hidden by default) -->
-      <div id="n-wrapupPanel" class="hidden" style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:14px;margin-bottom:4px;">
-        <div style="font-size:12px;font-weight:700;color:#1d4ed8;letter-spacing:0.4px;margin-bottom:12px;">
+      <div id="n-wrapupPanel" class="hidden" style="background:var(--surface);border:1px solid var(--accent);border-radius:10px;padding:14px;margin-bottom:4px;">
+        <div style="font-size:12px;font-weight:700;color:var(--accent);letter-spacing:0.4px;margin-bottom:12px;">
           🔄 WRAP UP — COMPARISON (ORIGINAL VS. SUMMARY)
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px;">
-          <div style="background:white;border-radius:8px;padding:12px;font-size:13px;line-height:1.6;">
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px;font-size:13px;line-height:1.6;">
             <div style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.5px;margin-bottom:6px;">📝 ORIGINAL</div>
             <div id="n-wrapupOriginal" style="color:var(--text);white-space:pre-wrap;"></div>
           </div>
-          <div style="background:white;border-radius:8px;padding:12px;font-size:13px;line-height:1.6;">
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px;font-size:13px;line-height:1.6;">
             <div style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.5px;margin-bottom:6px;">✨ SUMMARY</div>
             <div id="n-wrapupSummary"></div>
           </div>
-        </div>
-        <div style="font-size:11px;color:#92400e;background:#fef3c7;border-radius:6px;padding:6px 10px;margin-bottom:10px;">
-          ⚠ Test simulation — final version uses AI analysis (Mac Mini / Ollama)
         </div>
         <div style="display:flex;gap:8px;">
           <button class="btn btn-primary btn-sm" onclick="acceptWrapUp()">✓ Use Wrap Up</button>
@@ -898,6 +938,7 @@
         <button onclick="document.getElementById('importD2File').click()" style="background:none;border:1px solid var(--accent);color:var(--accent);border-radius:8px;padding:6px 13px;font-size:12px;cursor:pointer;font-family:inherit;">📤 Backup Import</button>
         <input type="file" id="importD2File" accept=".json" style="display:none" onchange="importD2(event)">
         <button onclick="openSyncSetup()" style="background:none;border:1px solid var(--border);color:var(--text-muted);border-radius:8px;padding:6px 13px;font-size:12px;cursor:pointer;font-family:inherit;">⚙ Sync Setup</button>
+        <button id="localBackupBtn" onclick="connectLocalBackupFolder()" style="background:none;border:1px solid var(--border);color:var(--text-muted);border-radius:8px;padding:6px 13px;font-size:12px;cursor:pointer;font-family:inherit;">📁 Backup-Ordner verbinden</button>
       </div>
       <button class="btn btn-primary" onclick="closeSettings()">Done</button>
     </div>
@@ -984,6 +1025,35 @@
   </div>
 </div>
 
+<!-- Quick-Assign Overlay -->
+<div class="qa-overlay hidden" id="qaOverlay" onclick="if(event.target===this)closeQuickAssign()">
+  <div class="qa-modal">
+    <div class="qa-header">
+      <div class="qa-header-left">
+        <span style="font-size:17px;font-weight:700;">🏷 Quick-Assign</span>
+        <span class="qa-badge" id="qa-badge">—</span>
+      </div>
+      <div class="qa-header-right">
+        <select class="form-select" id="qa-filter" style="font-size:13px;padding:5px 10px;" onchange="renderQuickAssign()">
+          <option value="all">Alle Einträge</option>
+          <option value="no-value">Ohne Value</option>
+          <option value="no-project">Ohne Project</option>
+          <option value="no-category">Ohne Category</option>
+        </select>
+        <button class="btn btn-secondary btn-sm" onclick="closeQuickAssign()">✕ Schließen</button>
+      </div>
+    </div>
+    <div class="qa-col-labels">
+      <span></span>
+      <span class="qa-col-label">Eintrag</span>
+      <span class="qa-col-label">Value</span>
+      <span class="qa-col-label">Project</span>
+      <span class="qa-col-label">Category</span>
+    </div>
+    <div id="qa-content"></div>
+  </div>
+</div>
+
 <!-- Meeting detail popup -->
 <div class="meeting-detail-popup hidden" id="meetingDetailPopup" onclick="event.stopPropagation()">
   <div style="font-weight:700;margin-bottom:6px;" id="popup-meetingName"></div>
@@ -1018,15 +1088,29 @@ const DAB_CATS = {
 let tlogFormOpen  = false;
 let tlogSearchVal = '';
 let tlogEditingId = null;
-let settings = JSON.parse(localStorage.getItem('d2_settings') || JSON.stringify({
-  categories: ['Reporting','Scheduling','HR','IT','Strategie','Operations','Compliance'],
-  projects:   ['ISAAC','Nachtschicht-Automation','Onboarding','CX Circle'],
-  fwd:        ['Petra','Natascha','Lydia','Dominik','Mario','Christine']
-}));
+const D2_SETTINGS_DEFAULTS = {
+  categories: ['1:1','Compliance','Evaluation','HR','IT','Kick off','Meeting','Onboarding','Operations','People','Reporting','Stakeholder','Strategie','Tools'],
+  projects:   ['Arche Noah','CX Circle','Horizon','ISAAC','KYC','LUMEN','McK','ReACT'],
+  fwd:        ['Can','Dominik','Lidija','Mario','Martina','Natascha','Petra']
+};
+
+// Migration v3 – replaces old settings lists with new structure (runs once)
+(function migrateSettingsV3() {
+  if (localStorage.getItem('d2_settings_v3_migrated')) return;
+  const raw = localStorage.getItem('d2_settings');
+  const s = raw ? JSON.parse(raw) : {};
+  s.categories = D2_SETTINGS_DEFAULTS.categories;
+  s.projects   = D2_SETTINGS_DEFAULTS.projects;
+  s.fwd        = D2_SETTINGS_DEFAULTS.fwd;
+  localStorage.setItem('d2_settings', JSON.stringify(s));
+  localStorage.setItem('d2_settings_v3_migrated', '1');
+})();
+
+let settings = JSON.parse(localStorage.getItem('d2_settings') || JSON.stringify(D2_SETTINGS_DEFAULTS));
 
 let currentTab      = 'notes';
 let stratPhase      = 'tage30';
-let currentView     = 'box';
+let currentView     = 'list';
 let historyOpen     = false;
 const expandedActions = new Set();
 let selectedValue  = null;
@@ -1161,8 +1245,15 @@ function renderMain() {
   }
 
   // Sort
-  const valOrder = {Commit:0, Improve:1, Deliver:2, '':3};
-  const sortFn = sort === 'date-desc' ? (a,b) => (b.datetime||'').localeCompare(a.datetime||'')
+  const valOrder  = {Commit:0, Improve:1, Deliver:2, '':3};
+  const prioOrder = {A:0, B:1, C:2, D:3, '':4};
+  const _topPrio  = item => {
+    const tasks = item.tasks || [];
+    if (!tasks.length) return 4;
+    return Math.min(...tasks.filter(t=>!t.done).map(t => prioOrder[t.prio||''] ?? 4));
+  };
+  const sortFn = sort === 'prio'      ? (a,b) => _topPrio(a) - _topPrio(b)
+               : sort === 'date-desc' ? (a,b) => (b.datetime||'').localeCompare(a.datetime||'')
                : sort === 'date-asc'  ? (a,b) => (a.datetime||'').localeCompare(b.datetime||'')
                : sort === 'value'     ? (a,b) => (valOrder[a.value]??3)-(valOrder[b.value]??3)
                : sort === 'project'   ? (a,b) => (a.project||'').localeCompare(b.project||'')
@@ -2202,12 +2293,10 @@ function stratSaveStatus(phase, selectEl) {
 
 // ══════════════════════════════════════════
 function renderActionListRow(a, isHistory) {
-  const vc      = a.value ? `value-${a.value}` : 'value-none';
-  const tasks   = a.tasks || [];
-  const subject = esc(a.subject || tasks[0]?.text || '(Action)');
-  const isExp   = expandedActions.has(a.id);
+  const vc    = a.value ? `value-${a.value}` : 'value-none';
+  const tasks = a.tasks || [];
 
-  // Shared meta badges (right side)
+  // Meta badges shown on first task row
   const metaBadges = `
     ${a.value    ? `<span class="value-badge ${vc}">${a.value}</span>` : ''}
     ${a.category ? `<span class="meta-tag">📁 ${esc(a.category)}</span>` : ''}
@@ -2217,48 +2306,34 @@ function renderActionListRow(a, isHistory) {
       style="padding:1px 7px;border-radius:4px;border:1px solid var(--border);background:none;font-size:11px;color:var(--text-muted);cursor:pointer;font-family:inherit;">+ Task</button>
     <span class="list-row-date">${formatDate(a.datetime)}</span>`;
 
-  // ── CASE 1: 0 or 1 task → single row, no expand ──
-  if (tasks.length <= 1) {
-    const t = tasks[0];
+  // No tasks: fallback row
+  if (!tasks.length) {
+    const subj = esc(a.subject || '(Action)');
     return `<div class="list-row ${isHistory ? 'done-row' : ''}" style="background:var(--bg);">
       <span style="width:18px;flex-shrink:0;"></span>
       <input type="checkbox" ${isHistory ? 'checked' : ''}
         onclick="event.stopPropagation();toggleActionComplete('${a.id}')"
         style="width:15px;height:15px;cursor:pointer;flex-shrink:0;accent-color:var(--accent);">
-      ${t ? `<span class="prio-badge prio-${t.prio||'D'}" style="flex-shrink:0;">${t.prio||'D'}</span>` : ''}
-      <span class="list-row-subject" style="font-size:13px;font-weight:500;" onclick="openActionEdit('${a.id}')" title="${subject}">${subject}</span>
+      <span class="list-row-subject" style="font-size:13px;font-weight:500;" onclick="openActionEdit('${a.id}')">${subj}</span>
       <div class="list-row-meta">${metaBadges}</div>
     </div>`;
   }
 
-  // ── CASE 2: multiple tasks → header with expand toggle ──
-  const open = tasks.filter(t => !t.done).length;
-  const header = `<div class="list-row ${isHistory ? 'done-row' : ''}" style="border-radius:${isExp ? '8px 8px 0 0' : '8px'};background:var(--bg);">
-    <button class="action-expand-btn" onclick="event.stopPropagation();toggleActionExpand('${a.id}')">${isExp ? '▼' : '▶'}</button>
-    <input type="checkbox" ${isHistory ? 'checked' : ''}
-      onclick="event.stopPropagation();toggleActionComplete('${a.id}')"
-      style="width:15px;height:15px;cursor:pointer;flex-shrink:0;accent-color:var(--accent);">
-    <span class="list-row-subject" style="font-size:13px;font-weight:500;" onclick="openActionEdit('${a.id}')" title="${subject}">${subject}</span>
-    <div class="list-row-meta">
-      <span class="meta-tag" style="color:${open>0?'var(--text-muted)':'#16a34a'};">${open>0 ? open+' open' : '✓ done'}</span>
-      ${metaBadges}
-    </div>
-  </div>`;
-
-  if (!isExp) return `<div class="action-list-group">${header}</div>`;
-
-  const subRows = tasks.map((t, idx) =>
-    `<div class="task-sub-row ${t.done ? 'task-done' : ''}">
-      <input type="checkbox" ${t.done ? 'checked' : ''}
-        onclick="toggleTaskDone('${a.id}', ${idx})"
-        style="width:13px;height:13px;cursor:pointer;flex-shrink:0;accent-color:var(--accent);">
-      <span class="prio-badge prio-${t.prio||'D'}">${t.prio||'D'}</span>
-      <span class="task-sub-text ${t.done ? 'done-text' : ''}">${esc(t.text)}</span>
-      ${t.fwd ? `<span class="task-sub-fwd">→ ${esc(t.fwd)}</span>` : ''}
-    </div>`
-  ).join('');
-
-  return `<div class="action-list-group">${header}${subRows}</div>`;
+  // ── Each task as its own individual row ──
+  return tasks.map((t, idx) => {
+    const done = t.done || isHistory;
+    const taskText = `${esc(t.text)}${t.fwd ? ` <span style="font-size:11px;color:var(--text-muted);font-weight:400;">→ ${esc(t.fwd)}</span>` : ''}`;
+    return `<div class="list-row ${done ? 'done-row' : ''}" style="background:var(--bg);">
+      <span style="width:18px;flex-shrink:0;"></span>
+      <input type="checkbox" ${done ? 'checked' : ''}
+        onclick="event.stopPropagation();toggleTaskDone('${a.id}',${idx})"
+        style="width:15px;height:15px;cursor:pointer;flex-shrink:0;accent-color:var(--accent);">
+      <span class="prio-badge prio-${t.prio||'D'}" style="flex-shrink:0;">${t.prio||'D'}</span>
+      <span class="list-row-subject" style="font-size:13px;font-weight:500;${done?'text-decoration:line-through;':''}"
+        onclick="openActionEdit('${a.id}')" title="${esc(t.text)}">${taskText}</span>
+      <div class="list-row-meta">${idx === 0 ? metaBadges : `<span class="list-row-date">${formatDate(a.datetime)}</span>`}</div>
+    </div>`;
+  }).join('');
 }
 
 function toggleActionExpand(id) {
@@ -2311,9 +2386,17 @@ function renderActionCard(a) {
   const tasks = a.tasks || [];
   const open  = tasks.filter(t => !t.done).length;
   const topTask = tasks[0];
+  const taskRows = tasks.slice(0,4).map((t, idx) =>
+    `<div style="display:flex;align-items:flex-start;gap:6px;padding:3px 0;opacity:${t.done?0.4:1};">
+      <input type="checkbox" ${t.done?'checked':''} onclick="event.stopPropagation();toggleTaskDone('${a.id}',${idx})"
+        style="width:14px;height:14px;cursor:pointer;flex-shrink:0;margin-top:2px;accent-color:var(--accent);">
+      <span class="prio-badge prio-${t.prio||'D'}" style="flex-shrink:0;">${t.prio||'D'}</span>
+      <span style="font-size:13px;line-height:1.4;${t.done?'text-decoration:line-through;':''}">${esc(t.text)}${t.fwd?` → <em style="color:var(--text-muted);">${esc(t.fwd)}</em>`:''}</span>
+    </div>`
+  ).join('');
   return `<div class="card" onclick="openActionEdit('${a.id}')">
     <div class="card-header">
-      <div class="card-subject">${esc(a.subject||topTask?.text||'(Action)')}</div>
+      <div class="card-subject">${esc(a.subject || (tasks.length === 1 ? topTask?.text : '⚡ ' + tasks.length + ' Tasks') || '(Action)')}</div>
       <span class="card-type-badge type-action">Action</span>
     </div>
     <div class="card-meta">
@@ -2321,11 +2404,9 @@ function renderActionCard(a) {
       ${a.category ? `<span class="meta-tag">📁 ${esc(a.category)}</span>` : ''}
       ${a.project  ? `<span class="meta-tag">🔷 ${esc(a.project)}</span>`  : ''}
     </div>
-    <div class="card-preview" style="-webkit-line-clamp:3;">
-      ${tasks.slice(0,3).map(t =>
-        `<span style="opacity:${t.done?0.4:1};">${t.done?'☑':'☐'} <span class="prio-badge prio-${t.prio||'D'}">${t.prio||'D'}</span> ${esc(t.text)} ${t.fwd?`→ <em>${esc(t.fwd)}</em>`:''}</span>`
-      ).join('<br>')}
-      ${tasks.length>3?`<span style="color:var(--text-muted);font-size:12px;">+${tasks.length-3} weitere</span>`:''}
+    <div style="padding:6px 0 2px;">
+      ${taskRows || '<span style="font-size:12px;color:var(--text-muted);font-style:italic;">Keine Tasks</span>'}
+      ${tasks.length>4?`<span style="color:var(--text-muted);font-size:12px;">+${tasks.length-4} weitere</span>`:''}
     </div>
     <div class="card-footer">
       <span class="card-date">${formatDate(a.datetime)}</span>
@@ -2340,6 +2421,42 @@ function renderActionCard(a) {
 
 // ══════════════════════════════════════════
 // PROJECTS VIEW – Option 4 (Kombiniert + Split)
+// ══════════════════════════════════════════
+// NEXT STEPS (per project)
+// ══════════════════════════════════════════
+let projNextSteps = JSON.parse(localStorage.getItem('d2_nextsteps') || '{}');
+
+function persistNextSteps() {
+  localStorage.setItem('d2_nextsteps', JSON.stringify(projNextSteps));
+}
+
+function getNextSteps(proj) {
+  return projNextSteps[proj] || [];
+}
+
+function addNextStep(proj, text) {
+  if (!projNextSteps[proj]) projNextSteps[proj] = [];
+  projNextSteps[proj].push({ id: uid(), text, done: false });
+  persistNextSteps();
+  renderMain();
+}
+
+function toggleNextStep(proj, id) {
+  const steps = projNextSteps[proj] || [];
+  const s = steps.find(x => x.id === id);
+  if (s) s.done = !s.done;
+  projNextSteps[proj] = steps;
+  persistNextSteps();
+  renderMain();
+}
+
+function deleteNextStep(proj, id) {
+  if (!projNextSteps[proj]) return;
+  projNextSteps[proj] = projNextSteps[proj].filter(s => s.id !== id);
+  persistNextSteps();
+  renderMain();
+}
+
 // ══════════════════════════════════════════
 const PROJ_COLORS = ['#0071e3','#16a34a','#d97706','#9333ea','#dc2626','#0891b2','#65a30d','#c026d3'];
 
@@ -2382,39 +2499,56 @@ function renderProjectsView(grid) {
     const color    = PROJ_COLORS[idx % PROJ_COLORS.length];
 
     const noteRows = pNotes.length
-      ? pNotes.slice(0, 12).map(n => {
-          const vc = n.value ? `value-${n.value}` : 'value-none';
-          const ac = (n.linkedActionIds||[]).length;
-          return `<div class="proj-row" onclick="openNoteEdit('${n.id}')">
-            <span style="font-size:13px;flex-shrink:0;">📝</span>
-            <span class="proj-row-text" title="${esc(n.subject||'(No subject)')}">${esc(n.subject||'(No subject)')}</span>
-            <div class="proj-row-meta">
-              ${n.value ? `<span class="value-badge ${vc}" style="font-size:11px;padding:1px 6px;">${n.value}</span>` : ''}
-              ${ac ? `<span class="badge badge-actions" style="font-size:11px;padding:1px 6px;">⚡${ac}</span>` : ''}
-              <span style="font-size:11px;color:var(--text-muted);white-space:nowrap;">${formatDate(n.datetime)}</span>
+      ? pNotes.slice(0, 10).map(n => {
+          const vc      = n.value ? `value-${n.value}` : 'value-none';
+          const ac      = (n.linkedActionIds||[]).length;
+          const bodyRaw = (n.wrapUp || n.content || '').trim();
+          const body    = bodyRaw.length > 300 ? bodyRaw.slice(0, 300) + '…' : bodyRaw;
+          return `<div class="proj-note-block" onclick="openNoteEdit('${n.id}')">
+            <div class="proj-note-subject">${esc(n.subject||'(No subject)')}</div>
+            ${body ? `<div class="proj-note-body">${esc(body)}</div>` : ''}
+            <div class="proj-note-footer">
+              ${n.value ? `<span class="value-badge ${vc}" style="font-size:11px;padding:1px 5px;">${n.value}</span>` : ''}
+              ${ac ? `<span class="badge badge-actions" style="font-size:11px;padding:1px 5px;">⚡${ac}</span>` : ''}
+              <span style="font-size:11px;color:var(--text-muted);">${formatDate(n.datetime)}</span>
             </div>
           </div>`;
-        }).join('') + (pNotes.length > 12 ? `<div class="proj-empty">+${pNotes.length-12} more</div>` : '')
+        }).join('') + (pNotes.length > 10 ? `<div class="proj-empty">+${pNotes.length-10} more</div>` : '')
       : `<div class="proj-empty">No notes</div>`;
 
     const actionRows = pActions.length
-      ? pActions.slice(0, 12).map(a => {
-          const vc    = a.value ? `value-${a.value}` : 'value-none';
+      ? pActions.slice(0, 12).flatMap(a => {
           const tasks = a.tasks || [];
-          const open  = tasks.filter(t => !t.done).length;
-          const label = esc(a.subject || tasks[0]?.text || '(Action)');
-          return `<div class="proj-row" onclick="openActionEdit('${a.id}')">
-            <input type="checkbox" onclick="event.stopPropagation();toggleActionComplete('${a.id}')"
-              style="width:14px;height:14px;cursor:pointer;flex-shrink:0;accent-color:var(--accent);">
-            <span class="proj-row-text" title="${label}">${label}</span>
-            <div class="proj-row-meta">
-              ${a.value ? `<span class="value-badge ${vc}" style="font-size:11px;padding:1px 6px;">${a.value}</span>` : ''}
-              ${tasks.length ? `<span style="font-size:11px;color:${open>0?'var(--text-muted)':'#16a34a'};">${open>0?open+' open':'✓'}</span>` : ''}
-              <span style="font-size:11px;color:var(--text-muted);white-space:nowrap;">${formatDate(a.datetime)}</span>
-            </div>
-          </div>`;
+          if (!tasks.length) {
+            const label = esc(a.subject || '(Action)');
+            return [`<div class="proj-row" onclick="openActionEdit('${a.id}')">
+              <input type="checkbox" onclick="event.stopPropagation();toggleActionComplete('${a.id}')"
+                style="width:14px;height:14px;cursor:pointer;flex-shrink:0;accent-color:var(--accent);">
+              <span class="proj-row-text">${label}</span>
+            </div>`];
+          }
+          return tasks.map((t, idx) => {
+            const done = t.done;
+            return `<div class="proj-row" onclick="openActionEdit('${a.id}')">
+              <input type="checkbox" ${done?'checked':''} onclick="event.stopPropagation();toggleTaskDone('${a.id}',${idx})"
+                style="width:14px;height:14px;cursor:pointer;flex-shrink:0;accent-color:var(--accent);">
+              <span class="proj-row-text" style="${done?'text-decoration:line-through;opacity:0.45;':''}">${esc(t.text)}</span>
+            </div>`;
+          });
         }).join('') + (pActions.length > 12 ? `<div class="proj-empty">+${pActions.length-12} more</div>` : '')
       : `<div class="proj-empty">No active actions</div>`;
+
+    // Next Steps
+    const projSteps = getNextSteps(proj);
+    const stepRows  = projSteps.map(s =>
+      `<div class="proj-next-row">
+        <input type="checkbox" ${s.done?'checked':''} onclick="event.stopPropagation();toggleNextStep('${esc(proj)}','${s.id}')"
+          style="width:14px;height:14px;cursor:pointer;flex-shrink:0;margin-top:1px;accent-color:var(--accent);">
+        <span class="proj-next-text ${s.done?'done':''}">${esc(s.text)}</span>
+        <button class="proj-next-del" onclick="event.stopPropagation();deleteNextStep('${esc(proj)}','${s.id}')">✕</button>
+      </div>`
+    ).join('');
+    const nextStepsDone = projSteps.filter(s=>s.done).length;
 
     return `<div class="proj-block" style="border-color:${color}40;">
       <div class="proj-header" style="background:${color};">
@@ -2423,6 +2557,7 @@ function renderProjectsView(grid) {
         <div class="proj-header-stats">
           <span class="proj-stat proj-stat-notes">📝 ${pNotes.length}</span>
           <span class="proj-stat proj-stat-actions">⚡ ${pActions.length}</span>
+          <span class="proj-stat" style="background:rgba(255,255,255,0.22);color:#fff;">🎯 ${projSteps.length - nextStepsDone} open</span>
         </div>
       </div>
       <div class="proj-split">
@@ -2433,6 +2568,15 @@ function renderProjectsView(grid) {
         <div class="proj-col">
           <div class="proj-col-header">Actions</div>
           ${actionRows}
+        </div>
+        <div class="proj-col">
+          <div class="proj-col-header">
+            <span>Next Steps</span>
+            <span style="font-size:10px;color:var(--text-muted);font-weight:400;text-transform:none;">jeden Freitag</span>
+          </div>
+          ${stepRows || '<div class="proj-empty">Noch keine Schritte</div>'}
+          <input class="proj-next-input" placeholder="+ Neuer Schritt (Enter)"
+            onkeydown="if(event.key==='Enter'&&this.value.trim()){addNextStep('${esc(proj)}',this.value.trim());this.value='';event.preventDefault();}">
         </div>
       </div>
     </div>`;
@@ -2844,6 +2988,12 @@ function triggerWrapUp() {
   const content = document.getElementById('n-content').value.trim();
   if (!content) { toast('⚠️ Kein Inhalt zum Zusammenfassen'); return; }
 
+  const lines = content.split(/\n+/).filter(l => l.trim().length > 3);
+  if (lines.length < 5) {
+    toast('ℹ️ Text zu kurz für Wrap Up – mindestens 5 Sätze/Zeilen nötig');
+    return;
+  }
+
   document.getElementById('n-wrapupOriginal').textContent = content;
   document.getElementById('n-wrapupSummary').innerHTML    = _simulateSummarize(content);
   document.getElementById('n-wrapupPanel').classList.remove('hidden');
@@ -2851,9 +3001,12 @@ function triggerWrapUp() {
 }
 
 function acceptWrapUp() {
-  noteWrapUpText = document.getElementById('n-wrapupSummary').innerText || '';
+  const summary = document.getElementById('n-wrapupSummary').innerText || '';
+  if (!summary || summary === '–') { toast('⚠️ Keine Zusammenfassung vorhanden'); return; }
+  noteWrapUpText = summary;
+  document.getElementById('n-content').value = summary;
   document.getElementById('n-wrapupPanel').classList.add('hidden');
-  toast('✅ Wrap Up übernommen');
+  toast('✅ Wrap Up übernommen – Inhalt aktualisiert');
 }
 
 function discardWrapUp() {
@@ -2861,20 +3014,46 @@ function discardWrapUp() {
 }
 
 function _simulateSummarize(text) {
-  // Split by newlines first; if single line, split by sentence-ending punctuation
-  let lines = text.split(/\n+/).map(l => l.trim()).filter(Boolean);
-  if (lines.length === 1) {
-    const sentences = text.match(/[^.!?]+[.!?]+[\s]*/g);
-    if (sentences && sentences.length > 1) {
-      lines = sentences.map(s => s.trim()).filter(Boolean);
-    }
+  // Split into sentences (by newline or sentence-ending punctuation)
+  const raw = text.split(/\n+|(?<=[.!?])\s+/).map(s => s.trim()).filter(s => s.length > 8);
+  if (!raw.length) return '<p style="color:var(--text-muted);font-size:13px;">–</p>';
+
+  // Clean: strip leading list markers
+  const sentences = raw.map(s => s.replace(/^[-\*\d\.\)]+\s*/, '').trim()).filter(s => s.length > 8);
+  if (!sentences.length) return '<p style="color:var(--text-muted);font-size:13px;">–</p>';
+
+  // Score each sentence by importance
+  const highKw = /\b(wichtig|kritisch|entschieden|vereinbart|bestätigt|erledigt|abgeschlossen|offen|risiko|problem|dringend|muss|müssen|nächste schritte|nächster schritt|next steps?|follow.?up|prüfen|klären|abstimmen)\b/i;
+  const midKw  = /\b(soll|erstellen|vorbereiten|besprechen|aufsetzen|definieren|einladen|schicken|anpassen)\b/i;
+
+  function score(s, idx) {
+    let sc = 0;
+    if (highKw.test(s)) sc += 3;
+    if (midKw.test(s))  sc += 1;
+    if (s.length > 50)  sc += 1;
+    if (idx === 0)      sc += 1; // first sentence usually most important
+    return sc;
   }
-  if (lines.length === 1) {
-    return `<p style="margin:0;color:var(--text);">${_escHtml(lines[0])}</p>`;
+
+  const scored = sentences.map((s, i) => ({ s, sc: score(s, i), i }));
+  scored.sort((a, b) => b.sc - a.sc);
+
+  // Select top sentences (max 4), restore original order
+  const limit = Math.min(4, sentences.length);
+  const top = scored.slice(0, limit);
+  top.sort((a, b) => a.i - b.i);
+  const selected = top.map(x => x.s);
+
+  // Polish each sentence: capitalize, ensure period, strip filler openers
+  function polish(s) {
+    s = s.replace(/^(also|und|aber|oder|nun|dann|jetzt|ok|okay|ja|nein),?\s*/gi, '');
+    s = s.charAt(0).toUpperCase() + s.slice(1);
+    if (!/[.!?]$/.test(s)) s += '.';
+    return s.trim();
   }
-  return '<ul style="padding-left:16px;margin:0;">' +
-    lines.map(l => `<li style="margin-bottom:5px;color:var(--text);">${_escHtml(l)}</li>`).join('') +
-    '</ul>';
+
+  const para = selected.map(polish).join(' ');
+  return `<p style="color:var(--text);font-size:13px;line-height:1.75;margin:0;">${_escHtml(para)}</p>`;
 }
 
 function _escHtml(s) {
@@ -3125,6 +3304,7 @@ function addSetting(type) {
   const val     = document.getElementById(inputId).value.trim();
   if (!val || settings[listKey].includes(val)) return;
   settings[listKey].push(val);
+  settings[listKey].sort((a,b) => a.localeCompare(b, 'de', {sensitivity:'base'}));
   document.getElementById(inputId).value = '';
   persist(); renderSettings();
 }
@@ -3207,7 +3387,7 @@ function getGistCreds() {
 function getD2Data() {
   const keys = ['d2_notes','d2_actions','d2_tageslog','d2_dab','d2_settings',
                  'd2_strategy_tage30','d2_strategy_tage60','d2_strategy_tage90',
-                 'd2_dash_status','d2_theme'];
+                 'd2_dash_status','d2_theme','d2_nextsteps'];
   const data = { _version: 2, _savedAt: new Date().toISOString() };
   keys.forEach(k => {
     const v = localStorage.getItem(k);
@@ -3235,7 +3415,30 @@ function applyD2Data(remote) {
   if (remote['d2_dash_status'] && !localStorage.getItem('d2_dash_status')) {
     localStorage.setItem('d2_dash_status', JSON.stringify(remote['d2_dash_status']));
   }
-  // Settings + Theme: lokal behalten
+  // Settings: Projekte, Kategorien, FWD mergen – neue Remote-Einträge hinzufügen, lokale behalten
+  if (remote['d2_settings']) {
+    const localS = JSON.parse(localStorage.getItem('d2_settings') || '{"projects":[],"categories":[],"fwd":[]}');
+    const remS   = remote['d2_settings'];
+    const mergeArr = (a, b) => [...new Set([...(Array.isArray(a)?a:[]), ...(Array.isArray(b)?b:[])])];
+    localS.projects   = mergeArr(localS.projects,   remS.projects);
+    localS.categories = mergeArr(localS.categories, remS.categories);
+    localS.fwd        = mergeArr(localS.fwd,        remS.fwd);
+    localStorage.setItem('d2_settings', JSON.stringify(localS));
+    // Globale settings-Variable aktualisieren
+    settings = localS;
+  }
+  // Next Steps: per Projekt mergen (remote Einträge hinzufügen, lokale behalten)
+  if (remote['d2_nextsteps'] && typeof remote['d2_nextsteps'] === 'object') {
+    const localNS = JSON.parse(localStorage.getItem('d2_nextsteps') || '{}');
+    Object.keys(remote['d2_nextsteps']).forEach(proj => {
+      const localSteps  = localNS[proj] || [];
+      const remoteSteps = remote['d2_nextsteps'][proj] || [];
+      const localIds    = new Set(localSteps.map(s => s.id));
+      localNS[proj]     = [...localSteps, ...remoteSteps.filter(s => !localIds.has(s.id))];
+    });
+    localStorage.setItem('d2_nextsteps', JSON.stringify(localNS));
+  }
+  // Theme: lokal behalten
 }
 
 async function cloudPushD2() {
@@ -3249,7 +3452,7 @@ async function cloudPushD2() {
       headers: { 'Authorization': 'token ' + token, 'Content-Type': 'application/json' },
       body: JSON.stringify({ files: { 'd2-data.json': { content: JSON.stringify(getD2Data(), null, 2) } } })
     });
-    if (resp.ok) { toast('☁ Cloud Push erfolgreich'); }
+    if (resp.ok) { toast('☁ Cloud Push erfolgreich'); await localBackupD2(); }
     else { const e = await resp.json(); toast('✗ Fehler: ' + (e.message || resp.status)); }
   } catch(e) { toast('✗ Netzwerkfehler: ' + e.message); }
   btn.textContent = orig; btn.disabled = false;
@@ -3270,12 +3473,14 @@ async function cloudPullD2() {
     if (!content) { toast('✗ Keine D2-Daten im Gist gefunden'); btn.textContent = orig; btn.disabled = false; return; }
     applyD2Data(JSON.parse(content));
     // State neu laden
-    notes    = JSON.parse(localStorage.getItem('d2_notes')    || '[]');
-    actions  = JSON.parse(localStorage.getItem('d2_actions')  || '[]');
-    tageslog = JSON.parse(localStorage.getItem('d2_tageslog') || '[]');
-    dab      = JSON.parse(localStorage.getItem('d2_dab')      || '[]');
+    notes         = JSON.parse(localStorage.getItem('d2_notes')       || '[]');
+    actions       = JSON.parse(localStorage.getItem('d2_actions')     || '[]');
+    tageslog      = JSON.parse(localStorage.getItem('d2_tageslog')    || '[]');
+    dab           = JSON.parse(localStorage.getItem('d2_dab')         || '[]');
+    projNextSteps = JSON.parse(localStorage.getItem('d2_nextsteps')   || '{}');
     renderMain(); updateFilterOptions();
     toast('📥 Cloud Pull & Merge erfolgreich');
+    await localBackupD2();
   } catch(e) { toast('✗ Netzwerkfehler: ' + e.message); }
   btn.textContent = orig; btn.disabled = false;
 }
@@ -3314,6 +3519,165 @@ async function saveSyncSetup() {
     }
   } catch(e) { errEl.textContent = 'Netzwerkfehler: ' + e.message; errEl.style.display = 'block'; }
   saveBtn.textContent = '✓ Speichern & Testen'; saveBtn.disabled = false;
+}
+
+// ── LOCAL BACKUP – File System Access API ──────────────────────────────────
+let _localBackupDirHandle = null;
+
+async function connectLocalBackupFolder() {
+  if (!('showDirectoryPicker' in window)) {
+    toast('⚠ Nicht unterstützt – bitte Chrome oder Edge verwenden');
+    return;
+  }
+  try {
+    _localBackupDirHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
+    _updateLocalBackupBtn();
+    toast('✅ Backup-Ordner verbunden – wird nach jedem Push/Pull gespeichert');
+  } catch(e) {
+    if (e.name !== 'AbortError') toast('✗ Fehler: ' + e.message);
+  }
+}
+
+async function localBackupD2() {
+  if (!_localBackupDirHandle) return;
+  try {
+    const data  = JSON.stringify(getD2Data(), null, 2);
+    const date  = new Date().toISOString().slice(0, 10);
+    const fname = 'd2-backup-' + date + '.json';
+    const fh = await _localBackupDirHandle.getFileHandle(fname, { create: true });
+    const wr = await fh.createWritable();
+    await wr.write(data);
+    await wr.close();
+    toast('💾 Lokal gesichert → ' + fname);
+  } catch(e) {
+    if (e.name === 'NotAllowedError') {
+      _localBackupDirHandle = null;
+      _updateLocalBackupBtn();
+      toast('⚠ Ordner-Zugriff abgelaufen – bitte in ⚙ Settings neu verbinden');
+    }
+  }
+}
+
+function _updateLocalBackupBtn() {
+  const btn = document.getElementById('localBackupBtn');
+  if (!btn) return;
+  if (_localBackupDirHandle) {
+    btn.textContent    = '📁 Ordner verbunden ✓';
+    btn.style.color    = '#16a34a';
+    btn.style.borderColor = '#16a34a';
+  } else {
+    btn.textContent    = '📁 Backup-Ordner verbinden';
+    btn.style.color    = 'var(--text-muted)';
+    btn.style.borderColor = 'var(--border)';
+  }
+}
+
+// ══════════════════════════════════════════
+// QUICK-ASSIGN
+// ══════════════════════════════════════════
+function openQuickAssign() {
+  document.getElementById('qaOverlay').classList.remove('hidden');
+  renderQuickAssign();
+}
+
+function closeQuickAssign() {
+  document.getElementById('qaOverlay').classList.add('hidden');
+  renderMain();
+}
+
+function renderQuickAssign() {
+  const filter    = document.getElementById('qa-filter').value;
+  const container = document.getElementById('qa-content');
+
+  function matchFilter(item) {
+    if (filter === 'no-value')    return !item.value;
+    if (filter === 'no-project')  return !item.project;
+    if (filter === 'no-category') return !item.category;
+    return true;
+  }
+
+  // Badge: unvollständige aktive Einträge
+  const allActive = [...notes.filter(n => !n.archived), ...actions.filter(a => !a.completed)];
+  const untagged  = allActive.filter(i => !i.value || !i.project || !i.category).length;
+  const badge     = document.getElementById('qa-badge');
+  badge.textContent = untagged > 0 ? `${untagged} unvollständig` : '✓ Alle getaggt';
+  badge.className   = untagged > 0 ? 'qa-badge' : 'qa-badge done';
+
+  const filteredNotes   = notes.filter(n => !n.archived   && matchFilter(n));
+  const filteredActions = actions.filter(a => !a.completed && matchFilter(a));
+
+  if (!filteredNotes.length && !filteredActions.length) {
+    container.innerHTML = '<div class="qa-empty">✓ Keine Einträge für diesen Filter</div>';
+    return;
+  }
+
+  function renderRow(item, type) {
+    const icon = type === 'note' ? '📝' : '⚡';
+    const subj = esc(item.subject || item.heading || '(kein Titel)');
+    const vcls = item.value ? 'qa-val-' + item.value.toLowerCase() : '';
+    return `<div class="qa-row">
+      <span class="qa-icon">${icon}</span>
+      <span class="qa-subject" title="${subj}">${subj}</span>
+      <select class="qa-select ${vcls}"
+              data-type="${type}" data-id="${esc(item.id)}" data-field="value"
+              onchange="qaUpdate(this)">
+        <option value="">—</option>
+        <option value="Commit"  ${item.value==='Commit' ?'selected':''}>Commit</option>
+        <option value="Improve" ${item.value==='Improve'?'selected':''}>Improve</option>
+        <option value="Deliver" ${item.value==='Deliver'?'selected':''}>Deliver</option>
+      </select>
+      <select class="qa-select"
+              data-type="${type}" data-id="${esc(item.id)}" data-field="project"
+              onchange="qaUpdate(this)">
+        <option value="">— Project —</option>
+        ${settings.projects.map(p => `<option value="${esc(p)}" ${item.project===p?'selected':''}>${esc(p)}</option>`).join('')}
+      </select>
+      <select class="qa-select"
+              data-type="${type}" data-id="${esc(item.id)}" data-field="category"
+              onchange="qaUpdate(this)">
+        <option value="">— Category —</option>
+        ${settings.categories.map(c => `<option value="${esc(c)}" ${item.category===c?'selected':''}>${esc(c)}</option>`).join('')}
+      </select>
+    </div>`;
+  }
+
+  let html = '';
+  if (filteredNotes.length) {
+    html += `<div class="qa-section-header">📝 Notes <span style="opacity:.6;font-weight:400;">(${filteredNotes.length})</span></div>`;
+    html += filteredNotes.map(n => renderRow(n, 'note')).join('');
+  }
+  if (filteredActions.length) {
+    html += `<div class="qa-section-header">⚡ Actions <span style="opacity:.6;font-weight:400;">(${filteredActions.length})</span></div>`;
+    html += filteredActions.map(a => renderRow(a, 'action')).join('');
+  }
+  container.innerHTML = html;
+}
+
+function qaUpdate(sel) {
+  const type  = sel.dataset.type;
+  const id    = sel.dataset.id;
+  const field = sel.dataset.field;
+  const val   = sel.value;
+
+  const arr  = type === 'note' ? notes : actions;
+  const item = arr.find(x => x.id === id);
+  if (!item) return;
+  item[field] = val;
+  persist();
+
+  // Farbe auf Value-Select aktualisieren
+  if (field === 'value') {
+    sel.className = 'qa-select' + (val ? ' qa-val-' + val.toLowerCase() : '');
+  }
+
+  // Badge aktualisieren
+  const allActive = [...notes.filter(n => !n.archived), ...actions.filter(a => !a.completed)];
+  const untagged  = allActive.filter(i => !i.value || !i.project || !i.category).length;
+  const badge     = document.getElementById('qa-badge');
+  if (badge) {
+    badge.textContent = untagged > 0 ? `${untagged} unvollständig` : '✓ Alle getaggt';
+    badge.className   = untagged > 0 ? 'qa-badge' : 'qa-badge done';
+  }
 }
 
 // ════ START ════
