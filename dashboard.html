@@ -574,6 +574,7 @@
     <button class="btn-icon" id="cloudPushBtn2" onclick="cloudPushD2()" title="Cloud Push – Daten speichern" style="font-size:15px;">☁</button>
     <button class="btn-icon" id="cloudPullBtn2" onclick="cloudPullD2()" title="Cloud Pull – Daten laden" style="font-size:15px;">📥</button>
     <button class="btn-icon" id="themeBtn" onclick="toggleTheme()" title="Dark/Light Mode" style="font-size:16px;">🌙</button>
+    <button class="btn-icon" onclick="exportStrategieCheck()" title="Strategie Check Export">📊</button>
     <button class="btn-icon" onclick="openQuickAssign()" title="Quick-Assign – Notes & Actions kategorisieren">🏷</button>
     <button class="btn-icon" onclick="openSettings()" title="Einstellungen">⚙️</button>
     <button class="btn btn-primary" onclick="openAddInfo()">+ Add Info</button>
@@ -3570,6 +3571,36 @@ function _updateLocalBackupBtn() {
     btn.style.color    = 'var(--text-muted)';
     btn.style.borderColor = 'var(--border)';
   }
+}
+
+// ══════════════════════════════════════════
+// STRATEGIE CHECK EXPORT
+// ══════════════════════════════════════════
+function exportStrategieCheck() {
+  const today = new Date().toISOString().slice(0, 10);
+  const data  = {
+    exportDate: new Date().toISOString(),
+    notes:      notes.filter(n => !n.archived),
+    actions:    actions,
+    tageslog:   tageslog,
+    nextsteps:  JSON.parse(localStorage.getItem('d2_nextsteps') || '{}'),
+    settings:   settings,
+    strategy: {
+      tage30: localStorage.getItem('d2_strategy_tage30') || '',
+      tage60: localStorage.getItem('d2_strategy_tage60') || '',
+      tage90: localStorage.getItem('d2_strategy_tage90') || ''
+    }
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = `strategie-check-${today}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  toast('📊 Export bereit – in McKinsey-Ordner speichern, dann "Strategie Check" im Chat');
 }
 
 // ══════════════════════════════════════════
